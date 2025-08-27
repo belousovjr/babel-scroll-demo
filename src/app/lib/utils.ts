@@ -1,4 +1,4 @@
-import { scrollEndError } from "./constants";
+import { bigIntToText } from "./codec";
 import { ScrollItem, ScrollState, ScrollOptions, ScrollToState } from "./types";
 
 export function genItems(
@@ -23,6 +23,7 @@ export function genItems(
 
     newItems.push({
       index: i,
+      text: bigIntToText(i),
       size,
       start,
     });
@@ -71,14 +72,14 @@ export function syncAnimationAttrs(element: HTMLElement, delta: number) {
   }
 }
 
-export function calcItemsPerScreen({ scrollElement, size }: ScrollOptions) {
-  const height = scrollElement?.getBoundingClientRect().height || 0;
+export function calcItemsPerScreen({ getScrollElement, size }: ScrollOptions) {
+  const height = getScrollElement()?.getBoundingClientRect().height || 0;
   return height / size;
 }
 
 export function calcStateForEnd(opts: ScrollOptions): ScrollState {
   const itemsPerScreen = calcItemsPerScreen(opts);
-  const lastScroll = Math.trunc(opts.scrollElement!.scrollTop);
+  const lastScroll = roundScroll(opts.getScrollElement()!.scrollTop);
   return {
     offset: -(itemsPerScreen % 1) * opts.size,
     item: opts.count - BigInt(Math.floor(itemsPerScreen)),
@@ -87,19 +88,20 @@ export function calcStateForEnd(opts: ScrollOptions): ScrollState {
 }
 
 export function calcStateByScroll(
-  opts: ScrollOptions & { scrollElement: HTMLElement },
+  opts: ScrollOptions,
   { offset, item }: ScrollState,
   isSmooth: boolean,
   scrollTop: number,
   delta: number
 ): ScrollState {
+  const scrollElement = opts.getScrollElement()!;
   if (!isSmooth) {
-    const lastScroll = Math.trunc(opts.scrollElement.scrollTop);
+    const lastScroll = roundScroll(scrollElement.scrollTop);
     //calc item by scrollTop
-    if (scrollTop === opts.scrollElement.scrollHeight) {
+    if (scrollTop === scrollElement.scrollHeight) {
       return calcStateForEnd(opts);
     } else {
-      const scrollPercent = scrollTop / opts.scrollElement.scrollHeight;
+      const scrollPercent = scrollTop / scrollElement.scrollHeight;
       const { numerator, denominator } = decimalToFraction(scrollPercent);
 
       return {
@@ -122,10 +124,10 @@ export function calcStateByScroll(
 }
 
 export function calcStateBySearch(
-  opts: ScrollOptions & { scrollElement: HTMLElement },
+  opts: ScrollOptions,
   state: ScrollToState
 ): ScrollState {
-  if (state.scroll === opts.scrollElement.scrollHeight) {
+  if (state.scroll === opts.getScrollElement()!.scrollHeight) {
     return calcStateForEnd(opts);
   } else {
     return {
@@ -136,7 +138,16 @@ export function calcStateBySearch(
   }
 }
 
-export function checkScrollEndError(height: number, scroll: number) {
-  const diff = height - scroll;
+export function checkScrollEndError(element: HTMLElement, scroll: number) {
+  const diff = element.scrollHeight - scroll;
+  const scrollEndError = Math.ceil(element.getBoundingClientRect().height);
   return diff && diff <= scrollEndError;
+}
+
+export function roundScroll(value: number) {
+  const floor = Math.floor(value);
+  const diff = value - floor;
+
+  if (diff > 0.5) return floor + 1;
+  return floor;
 }

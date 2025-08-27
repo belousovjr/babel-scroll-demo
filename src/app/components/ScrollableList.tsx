@@ -1,24 +1,59 @@
 "use client";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { idToBigInt, sanitizeText, textToBigInt, textToId } from "../lib/codec";
 import useBigScrollVirtualizer from "../lib/helpers/useBigScrollVirtualizer";
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 export default function ScrollableList() {
   const parentRef = useRef(null);
+  const defIdChecked = useRef(false);
 
-  const [search, setSearch] = useState<bigint | null>(null);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-  const bigScrollVirtualizer = useBigScrollVirtualizer({
-    count: 10n ** 100n,
-    scrollElement: parentRef.current,
-    size: 120,
-  });
+  const [search, setSearch] = useState("");
+
+  const id = searchParams.get("id");
+
+  const bigScrollVirtualizer = useBigScrollVirtualizer(
+    useMemo(
+      () => ({
+        count: 27n ** 80n,
+        size: 120,
+        getScrollElement: () => parentRef.current,
+      }),
+      []
+    )
+  );
+
+  const indexById = useMemo(() => (id ? idToBigInt(id) : null), [id]);
+
+  const updateId = useCallback(
+    (newId: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("id", newId);
+
+      router.replace(`${pathname}?${params.toString()}`);
+    },
+    [pathname, router, searchParams]
+  );
+
+  useEffect(() => {
+    if (parentRef.current && indexById !== null && !defIdChecked.current) {
+      bigScrollVirtualizer.search(indexById);
+      defIdChecked.current = true;
+    }
+  }, [bigScrollVirtualizer, indexById, searchParams]);
 
   return (
     <div className="flex flex-col min-h-dvh h-dvh overflow-hidden">
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          bigScrollVirtualizer.search(search!);
+
+          updateId(textToId(search));
+          bigScrollVirtualizer.search(textToBigInt(search));
         }}
       >
         <label>
@@ -26,22 +61,16 @@ export default function ScrollableList() {
           <input
             value={search?.toString() || ""}
             onChange={(e) => {
-              const value = e.target.value;
-              if (value) {
-                if (!isNaN(Number(value))) {
-                  setSearch(BigInt(value));
-                }
-              } else {
-                setSearch(null);
-              }
+              setSearch(sanitizeText(e.target.value));
             }}
+            maxLength={80}
           />
-        </label>
-        <button disabled={!search}>SEARCH</button>
+        </label>{" "}
+        <button>SEARCH</button>
       </form>
       <div
         ref={parentRef}
-        className="overflow-y-auto skeleton-background bg-gray-800 h-[500px]"
+        className="overflow-y-auto skeleton-background bg-gray-800"
       >
         <div
           style={{
@@ -56,10 +85,14 @@ export default function ScrollableList() {
                 height: `${virtualItem.size}px`,
                 transform: `translateY(${virtualItem.start}px)`,
               }}
-              className="absolute top-0 left-0 w-full overflow-hidden border-white border-1 border-r-0 p-2 bg-gray-800 box-border"
+              className={`absolute top-0 left-0 w-full overflow-hidden border-white border-1 border-r-0 p-2 bg-gray-800 box-border transition-colors ${
+                indexById === virtualItem.index
+                  ? "bg-yellow-500 text-black"
+                  : ""
+              }`}
             >
               <pre className="text-xl whitespace-pre-wrap break-words">
-                {virtualItem.index.toString()}
+                {virtualItem.text}
               </pre>
             </div>
           ))}

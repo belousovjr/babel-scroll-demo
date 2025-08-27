@@ -8,6 +8,7 @@ import {
   checkScrollEndError,
   calcItemsPerScreen,
   calcStateBySearch,
+  roundScroll,
 } from "../utils";
 import {
   containerHeight,
@@ -72,9 +73,9 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
   const toggleEvents = useCallback(
     (none: boolean) => {
       if (none) {
-        opts.scrollElement?.classList.add("pointer-events-none");
+        opts.getScrollElement()?.classList.add("pointer-events-none");
       } else {
-        opts.scrollElement?.classList.remove("pointer-events-none");
+        opts.getScrollElement()?.classList.remove("pointer-events-none");
       }
     },
     [opts]
@@ -82,7 +83,7 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
 
   const toggleVisibility = useCallback(
     (hide: boolean) => {
-      for (const el of opts.scrollElement?.children || []) {
+      for (const el of opts.getScrollElement()?.children || []) {
         if (hide) {
           el.classList.add("opacity-0");
         } else {
@@ -95,27 +96,27 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
 
   const search = useCallback(
     (index: bigint) => {
+      const scrollElement = opts.getScrollElement();
       if (
-        opts.scrollElement &&
+        scrollElement &&
         (index !== scrollState.current.item || scrollState.current.offset)
       ) {
-        const scrollTop = Math.trunc(opts.scrollElement.scrollTop);
+        const scrollTop = roundScroll(scrollElement.scrollTop);
         const scrollPercent = bigIntPercentage(index, opts.count);
         const itemsPerScreenInt = Math.floor(getItemsPerScreen());
 
-        let scroll = Math.trunc(
-          opts.scrollElement.scrollHeight * scrollPercent
-        );
+        let scroll = Math.round(scrollElement.scrollHeight * scrollPercent);
+
         const virtualDelta =
           Number(index - scrollState.current.item) * opts.size -
           scrollState.current.offset;
 
         if (
-          scroll === opts.scrollElement.scrollHeight &&
+          scroll === scrollElement.scrollHeight &&
           opts.count - index > itemsPerScreenInt
         ) {
           scroll =
-            opts.scrollElement.scrollHeight -
+            scrollElement.scrollHeight -
             Math.min(
               maxManualScrollDist,
               Number((opts.count - index) * BigInt(opts.size))
@@ -133,7 +134,7 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
           };
 
           toggleEvents(true);
-          opts.scrollElement.scrollTo({
+          scrollElement.scrollTo({
             top: scrollToState.current.scroll,
             behavior: "smooth",
           });
@@ -147,7 +148,7 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
 
             toggleEvents(true);
             toggleVisibility(true);
-            opts.scrollElement.scrollTo({
+            scrollElement.scrollTo({
               top: scroll,
               behavior: "smooth",
             });
@@ -172,27 +173,24 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
   );
 
   useEffect(() => {
-    if (items.length && !isPending) {
+    if (items.length && !isPending && !scrollToState.current) {
       toggleVisibility(false);
       toggleEvents(false);
     }
-  }, [isPending, items.length, toggleEvents, toggleVisibility]);
+  }, [items, isPending, toggleVisibility, toggleEvents]);
 
   useEffect(() => {
-    const { scrollElement, count, size } = opts;
+    const scrollElement = opts.getScrollElement();
     if (scrollElement) {
       const scrollHandler = () => {
-        let scrollTop = Math.trunc(scrollElement.scrollTop);
+        let scrollTop = roundScroll(scrollElement.scrollTop);
 
         if (
           !(
             scrollToState.current &&
-            checkScrollEndError(
-              scrollElement.scrollHeight,
-              scrollToState.current.scroll
-            )
+            checkScrollEndError(scrollElement, scrollToState.current.scroll)
           ) &&
-          checkScrollEndError(scrollElement.scrollHeight, scrollTop)
+          checkScrollEndError(scrollElement, scrollTop)
         ) {
           scrollTop = scrollElement.scrollHeight;
         }
@@ -206,10 +204,7 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
 
         if (scrollToState.current?.scroll === scrollTop) {
           if (!scrollToState.current.isSmooth) {
-            newState = calcStateBySearch(
-              { scrollElement, count, size },
-              scrollToState.current
-            );
+            newState = calcStateBySearch(opts, scrollToState.current);
           }
           scrollToState.current = null;
         }
@@ -219,7 +214,7 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
           (!scrollToState.current || scrollToState.current?.isSmooth)
         ) {
           newState = calcStateByScroll(
-            { count, size, scrollElement },
+            opts,
             scrollState.current,
             Math.abs(delta) <= getMinSmoothDist(),
             scrollTop,
@@ -237,7 +232,15 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
         scrollElement.removeEventListener("scroll", scrollHandler);
       };
     }
-  }, [opts, updateState, getItemsPerScreen, getOverScan, getMinSmoothDist]);
+  }, [
+    opts,
+    updateState,
+    getItemsPerScreen,
+    getOverScan,
+    getMinSmoothDist,
+    toggleVisibility,
+    toggleEvents,
+  ]);
 
   useEffect(() => {
     if (!items.length) {

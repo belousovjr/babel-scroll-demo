@@ -1,11 +1,12 @@
 export interface ScrollOptions {
   count: bigint;
-  scrollElement: HTMLElement | null;
+  getScrollElement: () => HTMLElement | null;
   size: number;
 }
 
 export interface ScrollItem {
   index: bigint;
+  text: string;
   start: number;
   size: number;
 }
