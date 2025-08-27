@@ -1,10 +1,8 @@
 "use client";
-import { useEffect } from "react";
+"next/navigation";
 import ScrollableList from "./components/ScrollableList";
 
 export default function Home() {
-  useEffect(() => {}, []);
-
   return (
     <div>
       <ScrollableList />
