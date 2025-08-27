@@ -1,5 +1,5 @@
 "use client";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { idToBigInt, sanitizeText, textToBigInt, textToId } from "../lib/codec";
 import useBigScrollVirtualizer from "../lib/helpers/useBigScrollVirtualizer";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -10,11 +10,12 @@ export default function ScrollableList() {
 
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   const [search, setSearch] = useState("");
-
-  const id = searchParams.get("id");
+  const params = new URLSearchParams(
+    typeof window !== "undefined" ? window.location.search : ""
+  );
+  const id = params.get("id");
 
   const bigScrollVirtualizer = useBigScrollVirtualizer(
     useMemo(
@@ -31,12 +32,11 @@ export default function ScrollableList() {
 
   const updateId = useCallback(
     (newId: string) => {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams(window.location.search);
       params.set("id", newId);
-
       router.replace(`${pathname}?${params.toString()}`);
     },
-    [pathname, router, searchParams]
+    [pathname, router]
   );
 
   useEffect(() => {
@@ -44,7 +44,7 @@ export default function ScrollableList() {
       bigScrollVirtualizer.search(indexById);
       defIdChecked.current = true;
     }
-  }, [bigScrollVirtualizer, indexById, searchParams]);
+  }, [bigScrollVirtualizer, indexById]);
 
   return (
     <div className="flex flex-col min-h-dvh h-dvh overflow-hidden">
