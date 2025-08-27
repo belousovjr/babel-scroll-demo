@@ -18,6 +18,7 @@ export function genItems(
   if (endIndex > count) {
     endIndex = count;
   }
+
   for (let i = startIndex; i < endIndex; i += 1n) {
     const start = lastScroll + Number(i - item) * size - offset;
 

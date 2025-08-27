@@ -1,7 +1,8 @@
 export interface ScrollOptions {
   count: bigint;
-  getScrollElement: () => HTMLElement | null;
   size: number;
+  getScrollElement: () => HTMLElement | null;
+  getStubElement: () => HTMLElement | null;
 }
 
 export interface ScrollItem {

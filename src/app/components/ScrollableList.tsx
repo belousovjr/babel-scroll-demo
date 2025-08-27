@@ -3,9 +3,11 @@ import { usePathname, useRouter } from "next/navigation";
 import { idToBigInt, sanitizeText, textToBigInt, textToId } from "../lib/codec";
 import useBigScrollVirtualizer from "../lib/helpers/useBigScrollVirtualizer";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ScrollOptions } from "../lib/types";
 
 export default function ScrollableList() {
-  const parentRef = useRef(null);
+  const parentRef = useRef<HTMLDivElement>(null);
+  const stubRef = useRef<HTMLDivElement>(null);
   const defIdChecked = useRef(false);
 
   const router = useRouter();
@@ -15,19 +17,19 @@ export default function ScrollableList() {
   const params = new URLSearchParams(
     typeof window !== "undefined" ? window.location.search : ""
   );
-  const id = params.get("id");
+  const [id, setId] = useState(params.get("id"));
 
   const bigScrollVirtualizer = useBigScrollVirtualizer(
-    useMemo(
+    useMemo<ScrollOptions>(
       () => ({
         count: 27n ** 80n,
         size: 120,
         getScrollElement: () => parentRef.current,
+        getStubElement: () => stubRef.current,
       }),
       []
     )
   );
-
   const indexById = useMemo(() => (id ? idToBigInt(id) : null), [id]);
 
   const updateId = useCallback(
@@ -35,6 +37,7 @@ export default function ScrollableList() {
       const params = new URLSearchParams(window.location.search);
       params.set("id", newId);
       router.replace(`${pathname}?${params.toString()}`);
+      setId(newId);
     },
     [pathname, router]
   );
@@ -51,7 +54,6 @@ export default function ScrollableList() {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-
           updateId(textToId(search));
           bigScrollVirtualizer.search(textToBigInt(search));
         }}
@@ -68,35 +70,41 @@ export default function ScrollableList() {
         </label>{" "}
         <button>SEARCH</button>
       </form>
-      <div
-        ref={parentRef}
-        className="overflow-y-auto skeleton-background bg-gray-800"
-      >
+      <div className="relative flex-1 flex flex-col overflow-hidden">
         <div
-          style={{
-            height: `${bigScrollVirtualizer.totalSize}px`,
-          }}
-          className="w-full relative select-none overflow-hidden"
+          ref={parentRef}
+          className="overflow-y-auto skeleton-background min-h-full bg-gray-800"
         >
-          {bigScrollVirtualizer.items.map((virtualItem) => (
-            <div
-              key={virtualItem.index}
-              style={{
-                height: `${virtualItem.size}px`,
-                transform: `translateY(${virtualItem.start}px)`,
-              }}
-              className={`absolute top-0 left-0 w-full overflow-hidden border-white border-1 border-r-0 p-2 bg-gray-800 box-border transition-colors ${
-                indexById === virtualItem.index
-                  ? "bg-yellow-600 text-black font-bold"
-                  : ""
-              }`}
-            >
-              <pre className="text-xl whitespace-pre-wrap break-words">
-                {virtualItem.text}
-              </pre>
-            </div>
-          ))}
+          <div
+            style={{
+              height: `${bigScrollVirtualizer.totalSize}px`,
+            }}
+            className="w-full relative select-none overflow-hidden"
+          >
+            {bigScrollVirtualizer.items.map((virtualItem) => (
+              <div
+                key={virtualItem.index}
+                style={{
+                  height: `${virtualItem.size}px`,
+                  transform: `translateY(${virtualItem.start}px)`,
+                }}
+                className={`absolute top-0 left-0 w-full overflow-hidden border-white border-1 border-r-0 p-2 bg-gray-800 box-border transition-colors ${
+                  indexById === virtualItem.index
+                    ? "bg-yellow-600 text-black font-bold"
+                    : ""
+                }`}
+              >
+                <pre className="text-xl whitespace-pre-wrap break-words">
+                  {virtualItem.text}
+                </pre>
+              </div>
+            ))}
+          </div>
         </div>
+        <div
+          ref={stubRef}
+          className="absolute top-0 left-0 w-full h-full pointer-events-none"
+        ></div>
       </div>
     </div>
   );
