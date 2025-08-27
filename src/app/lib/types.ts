@@ -15,3 +15,9 @@ export interface ScrollState {
   offset: number;
   lastScroll: number;
 }
+
+export interface ScrollToState {
+  item: bigint;
+  scroll: number;
+  isSmooth: boolean;
+}
