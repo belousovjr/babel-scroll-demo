@@ -87,7 +87,7 @@ export default function ScrollableList() {
               }}
               className={`absolute top-0 left-0 w-full overflow-hidden border-white border-1 border-r-0 p-2 bg-gray-800 box-border transition-colors ${
                 indexById === virtualItem.index
-                  ? "bg-yellow-500 text-black"
+                  ? "bg-yellow-600 text-black font-bold"
                   : ""
               }`}
             >
