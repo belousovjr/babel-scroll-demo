@@ -1,5 +1,3 @@
-"use client";
-"next/navigation";
 import ScrollableList from "./components/ScrollableList";
 
 export default function Home() {
