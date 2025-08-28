@@ -1,3 +1,5 @@
+import { LikeData } from "./db/models/Like";
+
 export interface ScrollOptions {
   count: bigint;
   size: number;
@@ -7,6 +9,7 @@ export interface ScrollOptions {
 
 export interface ScrollItem {
   index: bigint;
+  id: string;
   text: string;
   start: number;
   size: number;
@@ -22,5 +25,12 @@ export interface ScrollToState {
   item: bigint;
   scroll: number;
   isSmooth: boolean;
-  callback: (index: bigint) => void;
 }
+
+export type CacheEntry<T extends { _id: string }> = {
+  data: T | null;
+  id: string;
+  timestamp: number;
+  isLoadingSUS: boolean;
+  isPending: boolean;
+};
