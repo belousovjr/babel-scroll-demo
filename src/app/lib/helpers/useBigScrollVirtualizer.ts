@@ -30,6 +30,7 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
     offset: 0,
     lastScroll: 0,
   });
+  const isScrollEnded = useRef(true);
 
   const scrollToState = useRef<ScrollToState>(null);
 
@@ -107,7 +108,7 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
   );
 
   const search = useCallback(
-    (index: bigint) => {
+    (index: bigint, callback: (index: bigint) => void) => {
       const scrollElement = opts.getScrollElement();
       if (
         scrollElement &&
@@ -145,17 +146,20 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
           //smooth scroll
 
           if (!isEnd || delta) {
-            //no scroll with zero delta in end
+            //no scroll with zero delta to end
             scrollToState.current = {
               scroll: !isEnd
                 ? scrollState.current.lastScroll + Math.round(virtualDelta)
                 : scroll,
               item: index,
               isSmooth: true,
+              callback,
             };
 
             toggleEvents(true);
             makeScroll(scrollToState.current.scroll);
+          } else if (isEnd) {
+            callback(index);
           }
         } else {
           if (delta) {
@@ -163,6 +167,7 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
               scroll,
               item: index,
               isSmooth: false,
+              callback,
             };
 
             toggleEvents(true);
@@ -193,6 +198,10 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
     const scrollElement = opts.getScrollElement();
     if (scrollElement) {
       const scrollHandler = () => {
+        if (typeof scrollElement.onscrollend !== "undefined") {
+          isScrollEnded.current = false;
+        }
+
         let scrollTop = roundScroll(scrollElement.scrollTop);
 
         if (
@@ -211,7 +220,6 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
         syncAnimationAttrs(scrollElement, delta);
 
         let newState: ScrollState | undefined;
-
         if (scrollToState.current?.scroll === scrollTop) {
           if (!scrollToState.current.isSmooth) {
             newState = calcStateBySearch(opts, scrollToState.current);
@@ -219,12 +227,14 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
 
           toggleVisibility(false);
           toggleEvents(false);
+          scrollToState.current.callback(scrollToState.current.item);
           scrollToState.current = null;
         }
 
         if (
           !newState &&
-          (!scrollToState.current || scrollToState.current?.isSmooth)
+          (!scrollToState.current ||
+            (scrollToState.current?.isSmooth && isScrollEnded.current))
         ) {
           newState = calcStateByScroll(
             opts,
@@ -239,10 +249,16 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
         }
       };
 
+      const scrollEndHandler = () => {
+        isScrollEnded.current = true;
+      };
+
       scrollElement.addEventListener("scroll", scrollHandler);
+      scrollElement.addEventListener("scrollend", scrollEndHandler);
 
       return () => {
         scrollElement.removeEventListener("scroll", scrollHandler);
+        scrollElement.removeEventListener("scrollend", scrollEndHandler);
       };
     }
   }, [

@@ -22,4 +22,5 @@ export interface ScrollToState {
   item: bigint;
   scroll: number;
   isSmooth: boolean;
+  callback: (index: bigint) => void;
 }
