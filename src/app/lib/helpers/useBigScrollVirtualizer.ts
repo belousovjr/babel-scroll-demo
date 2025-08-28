@@ -94,6 +94,18 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
     [opts]
   );
 
+  const makeScroll = useCallback(
+    (top: number) => {
+      requestAnimationFrame(() => {
+        opts.getScrollElement()?.scrollTo({
+          top,
+          behavior: "smooth",
+        });
+      });
+    },
+    [opts]
+  );
+
   const search = useCallback(
     (index: bigint) => {
       const scrollElement = opts.getScrollElement();
@@ -115,10 +127,9 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
           Number(index - scrollState.current.item) * opts.size -
           scrollState.current.offset;
 
-        if (
-          scroll === scrollElement.scrollHeight &&
-          opts.count - index > itemsPerScreenInt
-        ) {
+        const isEnd = opts.count - index <= itemsPerScreenInt;
+
+        if (scroll === scrollElement.scrollHeight && !isEnd) {
           scroll =
             scrollElement.scrollHeight -
             Math.min(
@@ -132,23 +143,19 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
         const delta = scroll - scrollTop;
         if (Math.abs(virtualDelta) < getMinSmoothDist()) {
           //smooth scroll
-          const isEnd = opts.count - index <= itemsPerScreenInt;
 
           if (!isEnd || delta) {
+            //no scroll with zero delta in end
             scrollToState.current = {
               scroll: !isEnd
-                ? scrollState.current.lastScroll + virtualDelta
+                ? scrollState.current.lastScroll + Math.round(virtualDelta)
                 : scroll,
               item: index,
               isSmooth: true,
             };
 
             toggleEvents(true);
-
-            scrollElement.scrollTo({
-              top: scrollToState.current.scroll,
-              behavior: "smooth",
-            });
+            makeScroll(scrollToState.current.scroll);
           }
         } else {
           if (delta) {
@@ -160,10 +167,7 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
 
             toggleEvents(true);
             toggleVisibility(true);
-            scrollElement.scrollTo({
-              top: scroll,
-              behavior: "smooth",
-            });
+            makeScroll(scroll);
           } else {
             updateState({
               item: index,
@@ -179,6 +183,7 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
       getItemsPerScreen,
       getMinSmoothDist,
       toggleEvents,
+      makeScroll,
       toggleVisibility,
       updateState,
     ]
@@ -252,9 +257,10 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
 
   useEffect(() => {
     if (!items.length && !isPending) {
+      opts.getScrollElement()?.scrollTo({ top: 0, behavior: "auto" });
       regenerateItems();
     }
-  }, [items.length, isPending, regenerateItems]);
+  }, [items.length, isPending, regenerateItems, opts]);
 
   return { totalSize: containerHeight, items, search };
 }
