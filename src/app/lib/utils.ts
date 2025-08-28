@@ -1,4 +1,4 @@
-import { bigIntToText } from "./codec";
+import { bigIntToId, bigIntToText } from "./codec";
 import { ScrollItem, ScrollState, ScrollOptions, ScrollToState } from "./types";
 
 export function genItems(
@@ -7,6 +7,8 @@ export function genItems(
   itemsPerScreen: number,
   overScan: bigint
 ): ScrollItem[] {
+  const itemsPerScreenBigInt = BigInt(Math.ceil(itemsPerScreen));
+
   const newItems: ScrollItem[] = [];
   let startIndex = item - overScan;
 
@@ -14,7 +16,7 @@ export function genItems(
     startIndex = 0n;
   }
 
-  let endIndex = startIndex + overScan * 2n + BigInt(Math.ceil(itemsPerScreen));
+  let endIndex = startIndex + overScan * 2n + itemsPerScreenBigInt;
   if (endIndex > count) {
     endIndex = count;
   }
@@ -24,6 +26,7 @@ export function genItems(
 
     newItems.push({
       index: i,
+      id: bigIntToId(i),
       text: bigIntToText(i),
       size,
       start,
@@ -60,15 +63,18 @@ export function decimalToFraction(x: number | string, digits = 18) {
   return { numerator, denominator };
 }
 
-export function syncAnimationAttrs(element: HTMLElement, delta: number) {
-  if (!delta) {
-    element.style.animationName = "none";
-  } else {
-    element.style.animationName = "scrollSkeleton";
-    if (delta >= 0) {
-      element.style.animationDirection = "reverse";
+export function syncAnimationAttrs(
+  opts: ScrollOptions,
+  scrollTop: number,
+  offset: number
+) {
+  const scrollElement = opts.getScrollElement();
+  if (scrollElement) {
+    if (scrollTop === scrollElement.scrollHeight) {
+      scrollElement.style.backgroundPositionY =
+        (calcItemsPerScreen(opts) % 1) * opts.size + "px";
     } else {
-      element.style.animationDirection = "normal";
+      scrollElement.style.backgroundPositionY = -offset + "px";
     }
   }
 }
@@ -151,4 +157,12 @@ export function roundScroll(value: number) {
 
   if (diff > 0.5) return floor + 1;
   return floor;
+}
+
+export function calcVirtualDelta(
+  index: bigint,
+  opts: ScrollOptions,
+  { offset, item }: ScrollState
+) {
+  return Number(index - item) * opts.size - offset;
 }

@@ -11,6 +11,10 @@ const textLength = 80n;
 const idLength = 64;
 const padding = "0";
 
+export function prepText(text: string) {
+  return text.toLowerCase().padEnd(Number(textLength), " ");
+}
+
 function bigIntToUint8Array(big: bigint) {
   let hex = big.toString(16);
   if (hex.length % 2) hex = "0" + hex;
@@ -23,8 +27,7 @@ function uint8ArrayToBigInt(arr: Uint8Array<ArrayBufferLike>) {
 }
 
 export function textToBigInt(text: string) {
-  const prepText = text.toLowerCase().padEnd(Number(textLength), " ");
-  return uint8ArrayToBigInt(bs27.decode(prepText));
+  return uint8ArrayToBigInt(bs27.decode(prepText(text)));
 }
 
 export function bigIntToText(big: bigint) {
