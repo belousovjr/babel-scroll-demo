@@ -71,11 +71,11 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
   );
 
   const toggleEvents = useCallback(
-    (none: boolean) => {
-      if (none) {
-        opts.getScrollElement()?.classList.add("pointer-events-none");
+    (disable: boolean) => {
+      if (!disable) {
+        opts.getStubElement()?.classList.add("pointer-events-none");
       } else {
-        opts.getScrollElement()?.classList.remove("pointer-events-none");
+        opts.getStubElement()?.classList.remove("pointer-events-none");
       }
     },
     [opts]
@@ -101,7 +101,11 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
         scrollElement &&
         (index !== scrollState.current.item || scrollState.current.offset)
       ) {
-        const scrollTop = roundScroll(scrollElement.scrollTop);
+        let scrollTop = scrollState.current.lastScroll;
+        if (checkScrollEndError(scrollElement, scrollTop)) {
+          scrollTop = scrollElement.scrollHeight;
+        }
+
         const scrollPercent = bigIntPercentage(index, opts.count);
         const itemsPerScreenInt = Math.floor(getItemsPerScreen());
 
@@ -127,17 +131,25 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
 
         const delta = scroll - scrollTop;
         if (Math.abs(virtualDelta) < getMinSmoothDist()) {
-          scrollToState.current = {
-            scroll: scrollState.current.lastScroll + virtualDelta,
-            item: index,
-            isSmooth: true,
-          };
+          //smooth scroll
+          const isEnd = opts.count - index <= itemsPerScreenInt;
 
-          toggleEvents(true);
-          scrollElement.scrollTo({
-            top: scrollToState.current.scroll,
-            behavior: "smooth",
-          });
+          if (!isEnd || delta) {
+            scrollToState.current = {
+              scroll: !isEnd
+                ? scrollState.current.lastScroll + virtualDelta
+                : scroll,
+              item: index,
+              isSmooth: true,
+            };
+
+            toggleEvents(true);
+
+            scrollElement.scrollTo({
+              top: scrollToState.current.scroll,
+              behavior: "smooth",
+            });
+          }
         } else {
           if (delta) {
             scrollToState.current = {
@@ -173,13 +185,6 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
   );
 
   useEffect(() => {
-    if (items.length && !isPending && !scrollToState.current) {
-      toggleVisibility(false);
-      toggleEvents(false);
-    }
-  }, [items, isPending, toggleVisibility, toggleEvents]);
-
-  useEffect(() => {
     const scrollElement = opts.getScrollElement();
     if (scrollElement) {
       const scrollHandler = () => {
@@ -206,6 +211,9 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
           if (!scrollToState.current.isSmooth) {
             newState = calcStateBySearch(opts, scrollToState.current);
           }
+
+          toggleVisibility(false);
+          toggleEvents(false);
           scrollToState.current = null;
         }
 
@@ -243,10 +251,10 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
   ]);
 
   useEffect(() => {
-    if (!items.length) {
+    if (!items.length && !isPending) {
       regenerateItems();
     }
-  }, [items.length, regenerateItems]);
+  }, [items.length, isPending, regenerateItems]);
 
   return { totalSize: containerHeight, items, search };
 }
