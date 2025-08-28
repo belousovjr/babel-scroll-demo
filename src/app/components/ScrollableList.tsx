@@ -1,9 +1,15 @@
 "use client";
 import { usePathname, useRouter } from "next/navigation";
-import { idToBigInt, sanitizeText, textToBigInt, textToId } from "../lib/codec";
+import {
+  bigIntToId,
+  idToBigInt,
+  sanitizeText,
+  textToBigInt,
+} from "../lib/codec";
 import useBigScrollVirtualizer from "../lib/helpers/useBigScrollVirtualizer";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ScrollOptions } from "../lib/types";
+import Link from "next/link";
 
 export default function ScrollableList() {
   const parentRef = useRef<HTMLDivElement>(null);
@@ -32,8 +38,9 @@ export default function ScrollableList() {
   );
   const indexById = useMemo(() => (id ? idToBigInt(id) : null), [id]);
 
-  const updateId = useCallback(
-    (newId: string) => {
+  const updateIdByInex = useCallback(
+    (index: bigint) => {
+      const newId = bigIntToId(index);
       const params = new URLSearchParams(window.location.search);
       params.set("id", newId);
       router.replace(`${pathname}?${params.toString()}`);
@@ -44,32 +51,37 @@ export default function ScrollableList() {
 
   useEffect(() => {
     if (parentRef.current && indexById !== null && !defIdChecked.current) {
-      bigScrollVirtualizer.search(indexById);
+      bigScrollVirtualizer.search(indexById, updateIdByInex);
       defIdChecked.current = true;
     }
-  }, [bigScrollVirtualizer, indexById]);
+  }, [bigScrollVirtualizer, indexById, updateIdByInex]);
 
   return (
     <div className="flex flex-col min-h-dvh h-dvh overflow-hidden">
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          updateId(textToId(search));
-          bigScrollVirtualizer.search(textToBigInt(search));
-        }}
-      >
-        <label>
-          Query:{" "}
-          <input
-            value={search?.toString() || ""}
-            onChange={(e) => {
-              setSearch(sanitizeText(e.target.value));
-            }}
-            maxLength={80}
-          />
-        </label>{" "}
-        <button>SEARCH</button>
-      </form>
+      <div className="flex justify-between">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            bigScrollVirtualizer.search(textToBigInt(search), updateIdByInex);
+          }}
+        >
+          <label>
+            Query:{" "}
+            <input
+              value={search?.toString() || ""}
+              onChange={(e) => {
+                setSearch(sanitizeText(e.target.value));
+              }}
+              maxLength={80}
+            />
+          </label>{" "}
+          <button>SEARCH</button>
+        </form>
+        <div>
+          <Link href={"/privacy-policy"}>Privacy Policy</Link> {" | "}
+          <Link href={"/terms-of-use"}>Terms Of Use</Link>
+        </div>
+      </div>
       <div className="relative flex-1 flex flex-col overflow-hidden">
         <div
           ref={parentRef}
