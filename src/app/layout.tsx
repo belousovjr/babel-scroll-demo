@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { getSession } from "@/app/auth";
+import Providers from "./providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,7 +21,6 @@ const APP_DESCRIPTION =
   "An Ultra-Overflowing List Inspired by the Library of Babel.";
 
 export const metadata: Metadata = {
-  manifest: "/manifest.json",
   applicationName: APP_NAME,
   title: {
     default: APP_DEFAULT_TITLE,
@@ -54,17 +55,19 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getSession();
+
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <Providers session={session}>{children}</Providers>
       </body>
     </html>
   );

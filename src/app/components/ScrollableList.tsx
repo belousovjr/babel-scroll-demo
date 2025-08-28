@@ -10,6 +10,7 @@ import useBigScrollVirtualizer from "../lib/helpers/useBigScrollVirtualizer";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ScrollOptions } from "../lib/types";
 import Link from "next/link";
+import AuthForm from "./AuthForm";
 
 export default function ScrollableList() {
   const parentRef = useRef<HTMLDivElement>(null);
@@ -50,8 +51,10 @@ export default function ScrollableList() {
   );
 
   useEffect(() => {
-    if (parentRef.current && indexById !== null && !defIdChecked.current) {
-      bigScrollVirtualizer.search(indexById, updateIdByInex);
+    if (parentRef.current && !defIdChecked.current) {
+      if (indexById !== null) {
+        bigScrollVirtualizer.search(indexById, updateIdByInex);
+      }
       defIdChecked.current = true;
     }
   }, [bigScrollVirtualizer, indexById, updateIdByInex]);
@@ -77,6 +80,7 @@ export default function ScrollableList() {
           </label>{" "}
           <button>SEARCH</button>
         </form>
+        <AuthForm />
         <div>
           <Link href={"/privacy-policy"}>Privacy Policy</Link> {" | "}
           <Link href={"/terms-of-use"}>Terms Of Use</Link>
