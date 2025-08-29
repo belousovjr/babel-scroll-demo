@@ -9,31 +9,26 @@ export default function useLikesData(id: string): {
   refetch: () => Promise<void>;
 } {
   const { list, checkItems, fetchItems } = useContext(LikesContext);
-  const likeData = list.get(id);
 
   const cachedLikeData = useMemo(() => {
-    const result = {
+    const likesData = list.get(id);
+
+    return {
       data: null as LikeData | null,
       isPending: true,
       isLoading: true,
       refetch: async () => {
         await fetchItems?.([id]);
       },
+      ...(list.get(id) || {}),
     };
-    if (likeData) {
-      result.data = likeData.data;
-      result.isPending = likeData.isPending;
-      result.isLoading = likeData.isLoading;
-    }
-
-    return result;
-  }, [likeData, fetchItems, id]);
+  }, [list, id, fetchItems]);
 
   useEffect(() => {
-    if (!likeData) {
+    if (!list.get(id)) {
       checkItems?.([id]);
     }
-  }, [checkItems, id, likeData]);
+  }, [checkItems, id, list]);
 
   return cachedLikeData;
 }

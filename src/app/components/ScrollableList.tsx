@@ -43,7 +43,7 @@ export default function ScrollableList() {
       setModelId(urlId);
     }
   }, [bigScrollVirtualizer, urlId]);
-
+  // console.log(bigScrollVirtualizer.items.length);
   return (
     <div>
       <div className="flex flex-col min-h-dvh h-dvh overflow-hidden">
@@ -62,6 +62,7 @@ export default function ScrollableList() {
                   setSearch(sanitizeText(e.target.value));
                 }}
                 maxLength={80}
+                className="bg-gray-800"
               />
             </label>{" "}
             <button>SEARCH</button>
@@ -86,7 +87,7 @@ export default function ScrollableList() {
               {bigScrollVirtualizer.items.map((virtualItem) => (
                 <ListItem
                   key={virtualItem.index}
-                  data={virtualItem}
+                  {...virtualItem}
                   isSelected={virtualItem.text === prepSearch}
                   onClick={() => {
                     setModelId(virtualItem.id);

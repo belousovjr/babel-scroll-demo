@@ -38,8 +38,15 @@ export default function LikeButton({ id }: { id: string }) {
             : "No liked yet"
           : undefined
       }
-      onClick={likeItem}
-      disabled={status !== "authenticated" || isSendLoading}
+      onClick={(e) => {
+        e.stopPropagation();
+        if (status === "authenticated") {
+          likeItem();
+        } else {
+          alert("Login to like");
+        }
+      }}
+      disabled={isSendLoading}
       className={`flex justify-center cursor-pointer disabled:cursor-default disabled:opacity-85 transition-all ${
         isLikedData ? "bg-red-500" : "bg-gray-700"
       }`}

@@ -26,6 +26,7 @@ import {
 export default function useBigScrollVirtualizer(opts: BigScrollOptions) {
   const [items, setItems] = useState<BigScrollItem[]>([]);
   const [isPending, startTransition] = useTransition();
+  const [, startResizeTransition] = useTransition();
   const bigScrollState = useRef<BigScrollState>({
     item: 0n,
     offset: 0,
@@ -272,11 +273,21 @@ export default function useBigScrollVirtualizer(opts: BigScrollOptions) {
   }, [getMinSmoothDist, opts, toggleEvents, toggleVisibility, updateState]);
 
   useEffect(() => {
+    const resizeCallback = () => {
+      startResizeTransition(regenerateItems);
+    };
+    window.addEventListener("resize", resizeCallback);
+    return () => {
+      window.removeEventListener("resize", resizeCallback);
+    };
+  }, [regenerateItems, startResizeTransition]);
+
+  useEffect(() => {
     if (!items.length && !isPending) {
       opts.getScrollElement()?.scrollTo({ top: 0, behavior: "auto" });
       regenerateItems();
     }
-  }, [items.length, isPending, regenerateItems, opts]);
+  }, [isPending, items.length, opts, regenerateItems]);
 
   return { totalSize: containerHeight, items, search };
 }

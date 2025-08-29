@@ -48,45 +48,53 @@ export default class CachedEntriesProvider<T extends { _id: string }> {
   #checkIsOldCache(item: CachedEntry<T> | undefined) {
     return !item || Date.now() - item.timestamp > this.cacheTime;
   }
+  #setOrUpdateItem(itemData: CachedEntry<T>) {
+    const oldItem = this.#byId.get(itemData.id);
+    if (oldItem) {
+      oldItem.data = itemData.data;
+      oldItem.isPending = itemData.isPending;
+      oldItem.isLoading = itemData.isLoading;
+      oldItem.timestamp = itemData.timestamp;
+    }
+    return { oldItem, newItem: oldItem || itemData };
+  }
   #setOrUpdate(items: T[], emptyIds: string[]) {
     const timestamp = Date.now();
     for (const id of emptyIds) {
-      const oldItem = this.#byId.get(id);
-      const newCachedItem: CachedEntry<T> = {
-        data: null,
+      const { newItem, oldItem } = this.#setOrUpdateItem({
         id,
+        data: null,
         isPending: false,
         isLoading: false,
         timestamp,
-      };
+      });
+
       if (oldItem) {
         const index = this.#byTimestamp.indexOf(oldItem);
-
         this.#byTimestamp.splice(index, 1);
       }
 
-      this.#byTimestamp.push(newCachedItem);
-      this.#byId.set(id, newCachedItem);
+      this.#byTimestamp.push(newItem);
+      this.#byId.set(id, newItem);
     }
 
     for (const item of items) {
       const id = item._id;
-      const oldItem = this.#byId.get(id);
-      const newCachedItem: CachedEntry<T> = {
+
+      const { oldItem, newItem } = this.#setOrUpdateItem({
         data: item,
         id,
         isPending: false,
         isLoading: false,
         timestamp,
-      };
+      });
       if (oldItem) {
         const index = this.#byTimestamp.indexOf(oldItem);
-
         this.#byTimestamp.splice(index, 1);
       }
 
-      this.#byTimestamp.push(newCachedItem);
-      this.#byId.set(id, newCachedItem);
+      this.#byTimestamp.push(newItem);
+      this.#byId.set(id, newItem);
     }
 
     this.#fixSize();
