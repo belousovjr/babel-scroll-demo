@@ -1,8 +1,8 @@
-import { ScrollItem } from "../lib/types";
+import { BigScrollItem } from "../lib/types";
 import LikeButton from "./LikeButton";
 
 interface ListItemProps {
-  data: ScrollItem;
+  data: BigScrollItem;
   isSelected: boolean;
   onClick: () => void;
 }

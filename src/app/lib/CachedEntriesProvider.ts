@@ -1,27 +1,37 @@
-import { CacheEntry } from "./types";
+import { CachedEntry } from "./types";
 
-interface CachedEntriesProviderOptions {
-  defaultIds?: string[];
+interface CachedEntriesProviderOptions<T extends { _id: string }> {
+  defaultItems?: CachedEntry<T>[];
 }
 
 export default class CachedEntriesProvider<T extends { _id: string }> {
-  #byTimestamp: CacheEntry<T>[] = [];
-  #byId = new Map<string, CacheEntry<T>>();
-  public cacheTime = 60 * 1000;
-  public max = 5000;
+  #byTimestamp: CachedEntry<T>[] = [];
+  #byId = new Map<string, CachedEntry<T>>();
+  public cacheTime = 30 * 1000;
+  public max = 2000;
   #fetchFn: (ids: string[]) => Promise<T[]>;
-  #callbacks = new Set<(items: Map<string, CacheEntry<T>>) => unknown>();
+  #callbacks = new Set<(items: Map<string, CachedEntry<T>>) => unknown>();
   #plannedIds = new Set<string>();
-  #debounceInterval: NodeJS.Timeout | null = null;
+
+  get isPending() {
+    return this.#byTimestamp.some((item) => item.isPending);
+  }
 
   constructor(
     fetchFn: (ids: string[]) => Promise<T[]>,
-    options?: CachedEntriesProviderOptions
+    options?: CachedEntriesProviderOptions<T>
   ) {
     this.#fetchFn = fetchFn;
 
-    if (options?.defaultIds) {
-      this.checkItems(options.defaultIds);
+    if (options?.defaultItems?.length) {
+      const filteredDefItems = options.defaultItems.filter(
+        (item) => !this.#checkIsOldCache(item)
+      );
+      this.#byTimestamp = [...filteredDefItems];
+      for (const item of filteredDefItems) {
+        this.#byId.set(item.id, item);
+      }
+      this.#fixSize();
     }
   }
 
@@ -35,24 +45,26 @@ export default class CachedEntriesProvider<T extends { _id: string }> {
       }
     }
   }
-  #checkIsOldCache(item: CacheEntry<T> | undefined) {
+  #checkIsOldCache(item: CachedEntry<T> | undefined) {
     return !item || Date.now() - item.timestamp > this.cacheTime;
   }
   #setOrUpdate(items: T[], emptyIds: string[]) {
     const timestamp = Date.now();
     for (const id of emptyIds) {
       const oldItem = this.#byId.get(id);
-      const newCachedItem: CacheEntry<T> = {
+      const newCachedItem: CachedEntry<T> = {
         data: null,
         id,
         isPending: false,
-        isLoadingSUS: false,
+        isLoading: false,
         timestamp,
       };
       if (oldItem) {
         const index = this.#byTimestamp.indexOf(oldItem);
+
         this.#byTimestamp.splice(index, 1);
       }
+
       this.#byTimestamp.push(newCachedItem);
       this.#byId.set(id, newCachedItem);
     }
@@ -60,21 +72,23 @@ export default class CachedEntriesProvider<T extends { _id: string }> {
     for (const item of items) {
       const id = item._id;
       const oldItem = this.#byId.get(id);
-      const newCachedItem: CacheEntry<T> = {
+      const newCachedItem: CachedEntry<T> = {
         data: item,
         id,
         isPending: false,
-        isLoadingSUS: false,
+        isLoading: false,
         timestamp,
       };
       if (oldItem) {
         const index = this.#byTimestamp.indexOf(oldItem);
+
         this.#byTimestamp.splice(index, 1);
       }
-      this.#byTimestamp.push(newCachedItem);
 
+      this.#byTimestamp.push(newCachedItem);
       this.#byId.set(id, newCachedItem);
     }
+
     this.#fixSize();
   }
   #emit() {
@@ -82,12 +96,7 @@ export default class CachedEntriesProvider<T extends { _id: string }> {
       callback(this.#byId);
     }
   }
-  on(callback: (items: Map<string, CacheEntry<T>>) => unknown) {
-    this.#callbacks.add(callback);
-  }
-  off(callback: (items: Map<string, CacheEntry<T>>) => unknown) {
-    this.#callbacks.delete(callback);
-  }
+
   async #fetch(forceIds?: string[]) {
     const fetchIds = forceIds || Array.from(this.#plannedIds);
     if (fetchIds.length) {
@@ -101,25 +110,33 @@ export default class CachedEntriesProvider<T extends { _id: string }> {
       );
 
       this.#setOrUpdate(newItems, emptyIds);
+
       this.#emit();
     }
+  }
+  on(callback: (items: Map<string, CachedEntry<T>>) => unknown) {
+    this.#callbacks.add(callback);
+  }
+  off(callback: (items: Map<string, CachedEntry<T>>) => unknown) {
+    this.#callbacks.delete(callback);
   }
   checkItems(ids: string[], force?: false): void;
   checkItems(ids: string[], force: true): Promise<void>;
   checkItems(ids: string[], force = false): void | Promise<void> {
     const fetchIds: string[] = [];
     const timestamp = Date.now();
+
     for (const id of ids) {
       const item = this.#byId.get(id);
-      if (force || !item || this.#checkIsOldCache(item)) {
+      if (!item?.isPending && (force || !item || this.#checkIsOldCache(item))) {
         fetchIds.push(id);
         this.#plannedIds.add(id);
         if (item) {
-          this.#byId.set(id, { ...item, isPending: true });
+          item.isPending = true;
         } else {
-          const newItem: CacheEntry<T> = {
+          const newItem: CachedEntry<T> = {
             isPending: true,
-            isLoadingSUS: true,
+            isLoading: true,
             timestamp,
             id,
             data: null,
@@ -134,15 +151,14 @@ export default class CachedEntriesProvider<T extends { _id: string }> {
     this.#emit();
 
     if (!force) {
-      if (this.#debounceInterval) {
-        clearInterval(this.#debounceInterval);
-      }
-
-      this.#debounceInterval = setInterval(() => {
+      setInterval(() => {
         this.#fetch();
       }, 100);
     } else {
       return this.#fetch(ids);
     }
+  }
+  entries() {
+    return [...this.#byTimestamp];
   }
 }
