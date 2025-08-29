@@ -23,11 +23,11 @@ export default function useLikesData(id: string): {
     if (likeData) {
       result.data = likeData.data;
       result.isPending = likeData.isPending;
-      result.isLoading = likeData.isLoadingSUS;
+      result.isLoading = likeData.isLoading;
     }
 
     return result;
-  }, [fetchItems, id, likeData]);
+  }, [likeData, fetchItems, id]);
 
   useEffect(() => {
     if (!likeData) {

@@ -29,6 +29,6 @@ export type CachedEntry<T extends { _id: string }> = {
   data: T | null;
   id: string;
   timestamp: number;
-  isLoadingSUS: boolean;
+  isLoading: boolean;
   isPending: boolean;
 };
