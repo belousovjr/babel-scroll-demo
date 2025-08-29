@@ -129,14 +129,17 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
 
         const isEnd = opts.count - index <= itemsPerScreenInt;
 
-        if (scroll === scrollElement.scrollHeight && !isEnd) {
+        if (
+          scrollElement.scrollHeight - scroll < maxManualScrollDist &&
+          !isEnd
+        ) {
           scroll =
             scrollElement.scrollHeight -
             Math.min(
               maxManualScrollDist,
               Number((opts.count - index) * BigInt(opts.size))
             );
-        } else if (scroll === 0 && index !== 0n) {
+        } else if (scroll < maxManualScrollDist && index !== 0n) {
           scroll = Math.min(maxManualScrollDist, Number(index) * opts.size);
         }
 
@@ -213,6 +216,7 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
           scrollTop - (scrollState.current?.lastScroll ?? scrollTop);
 
         let newState: ScrollState | undefined;
+
         if (scrollToState.current?.scroll === scrollTop) {
           if (!scrollToState.current.isSmooth) {
             newState = calcStateBySearch(opts, scrollToState.current);
