@@ -32,7 +32,6 @@ export default function LikesContextProvider({
   const provider = useRef<CachedEntriesProvider<LikeData> | null>(null);
 
   const [list, setList] = useState(new Map<string, CachedEntry<LikeData>>());
-  const [, startTransition] = useTransition();
 
   const checkItems = useCallback((ids: string[]) => {
     provider.current?.checkItems(ids);
@@ -52,9 +51,8 @@ export default function LikesContextProvider({
       );
     }
     const updateCallback = (items: Map<string, CachedEntry<LikeData>>) => {
-      startTransition(() => {
-        setList(new Map(items));
-      });
+      setList(new Map(items));
+
       if (provider.current && !provider.current.isPending) {
         setSavedItems(provider.current.entries());
       }
