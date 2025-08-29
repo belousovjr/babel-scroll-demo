@@ -1,15 +1,20 @@
 import { bigIntToId, bigIntToText } from "./codec";
-import { ScrollItem, ScrollState, ScrollOptions, ScrollToState } from "./types";
+import {
+  BigScrollItem,
+  BigScrollState,
+  BigScrollOptions,
+  SearchState,
+} from "./types";
 
 export function genItems(
-  { count, size }: ScrollOptions,
-  { item, lastScroll, offset }: ScrollState,
+  { count, size }: BigScrollOptions,
+  { item, lastScroll, offset }: BigScrollState,
   itemsPerScreen: number,
   overScan: bigint
-): ScrollItem[] {
+): BigScrollItem[] {
   const itemsPerScreenBigInt = BigInt(Math.ceil(itemsPerScreen));
 
-  const newItems: ScrollItem[] = [];
+  const newItems: BigScrollItem[] = [];
   let startIndex = item - overScan;
 
   if (startIndex < 0n) {
@@ -35,7 +40,7 @@ export function genItems(
   return newItems;
 }
 
-export function compareScrollStates(a: ScrollState, b: ScrollState) {
+export function compareBigScrollStates(a: BigScrollState, b: BigScrollState) {
   return (
     a.item === b.item && a.lastScroll === b.lastScroll && a.offset === b.offset
   );
@@ -64,7 +69,7 @@ export function decimalToFraction(x: number | string, digits = 18) {
 }
 
 export function syncAnimationAttrs(
-  opts: ScrollOptions,
+  opts: BigScrollOptions,
   scrollTop: number,
   offset: number
 ) {
@@ -79,12 +84,15 @@ export function syncAnimationAttrs(
   }
 }
 
-export function calcItemsPerScreen({ getScrollElement, size }: ScrollOptions) {
+export function calcItemsPerScreen({
+  getScrollElement,
+  size,
+}: BigScrollOptions) {
   const height = getScrollElement()?.getBoundingClientRect().height || 0;
   return height / size;
 }
 
-export function calcStateForEnd(opts: ScrollOptions): ScrollState {
+export function calcStateForEnd(opts: BigScrollOptions): BigScrollState {
   const itemsPerScreen = calcItemsPerScreen(opts);
   const lastScroll = roundScroll(opts.getScrollElement()!.scrollTop);
   return {
@@ -95,12 +103,12 @@ export function calcStateForEnd(opts: ScrollOptions): ScrollState {
 }
 
 export function calcStateByScroll(
-  opts: ScrollOptions,
-  { offset, item }: ScrollState,
+  opts: BigScrollOptions,
+  { offset, item }: BigScrollState,
   isSmooth: boolean,
   scrollTop: number,
   delta: number
-): ScrollState {
+): BigScrollState {
   const scrollElement = opts.getScrollElement()!;
   if (!isSmooth) {
     const lastScroll = roundScroll(scrollElement.scrollTop);
@@ -131,9 +139,9 @@ export function calcStateByScroll(
 }
 
 export function calcStateBySearch(
-  opts: ScrollOptions,
-  state: ScrollToState
-): ScrollState {
+  opts: BigScrollOptions,
+  state: SearchState
+): BigScrollState {
   if (state.scroll === opts.getScrollElement()!.scrollHeight) {
     return calcStateForEnd(opts);
   } else {
@@ -161,8 +169,8 @@ export function roundScroll(value: number) {
 
 export function calcVirtualDelta(
   index: bigint,
-  opts: ScrollOptions,
-  { offset, item }: ScrollState
+  opts: BigScrollOptions,
+  { offset, item }: BigScrollState
 ) {
   return Number(index - item) * opts.size - offset;
 }
