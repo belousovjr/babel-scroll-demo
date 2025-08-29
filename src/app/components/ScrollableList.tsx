@@ -3,7 +3,7 @@
 import { idToBigInt, prepText, sanitizeText, textToBigInt } from "../lib/codec";
 import useBigScrollVirtualizer from "../lib/helpers/useBigScrollVirtualizer";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ScrollOptions } from "../lib/types";
+import { BigScrollOptions } from "../lib/types";
 import Link from "next/link";
 import AuthForm from "./AuthForm";
 import ListItem from "./ListItem";
@@ -25,7 +25,7 @@ export default function ScrollableList() {
   }, [search]);
 
   const bigScrollVirtualizer = useBigScrollVirtualizer(
-    useMemo<ScrollOptions>(
+    useMemo<BigScrollOptions>(
       () => ({
         count: 27n ** 80n,
         size: 120,

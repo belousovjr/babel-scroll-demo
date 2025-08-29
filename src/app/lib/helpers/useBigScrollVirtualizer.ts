@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import {
   genItems,
-  compareScrollStates,
+  compareBigScrollStates,
   syncAnimationAttrs,
   calcStateByScroll,
   bigIntPercentage,
@@ -17,23 +17,23 @@ import {
   overScanMax,
 } from "../constants";
 import {
-  ScrollItem,
-  ScrollOptions,
-  ScrollState,
-  ScrollToState,
+  BigScrollItem,
+  BigScrollOptions,
+  BigScrollState,
+  SearchState,
 } from "../types";
 
-export default function useBigScrollVirtualizer(opts: ScrollOptions) {
-  const [items, setItems] = useState<ScrollItem[]>([]);
+export default function useBigScrollVirtualizer(opts: BigScrollOptions) {
+  const [items, setItems] = useState<BigScrollItem[]>([]);
   const [isPending, startTransition] = useTransition();
-  const scrollState = useRef<ScrollState>({
+  const bigScrollState = useRef<BigScrollState>({
     item: 0n,
     offset: 0,
     lastScroll: 0,
   });
   const isScrollEnded = useRef(true);
 
-  const scrollToState = useRef<ScrollToState>(null);
+  const searchState = useRef<SearchState>(null);
 
   const getItemsPerScreen = useCallback(() => {
     return calcItemsPerScreen(opts);
@@ -54,7 +54,7 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
       setItems(
         genItems(
           opts,
-          scrollState.current,
+          bigScrollState.current,
           getItemsPerScreen(),
           BigInt(getOverScan())
         )
@@ -63,9 +63,9 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
   }, [opts, getItemsPerScreen, getOverScan]);
 
   const updateState = useCallback(
-    (newState: ScrollState) => {
-      if (!compareScrollStates(newState, scrollState.current)) {
-        scrollState.current = newState;
+    (newState: BigScrollState) => {
+      if (!compareBigScrollStates(newState, bigScrollState.current)) {
+        bigScrollState.current = newState;
         regenerateItems();
       }
     },
@@ -113,9 +113,9 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
       const scrollElement = opts.getScrollElement();
       if (
         scrollElement &&
-        (index !== scrollState.current.item || scrollState.current.offset)
+        (index !== bigScrollState.current.item || bigScrollState.current.offset)
       ) {
-        let scrollTop = scrollState.current.lastScroll;
+        let scrollTop = bigScrollState.current.lastScroll;
         if (checkScrollEndError(scrollElement, scrollTop)) {
           scrollTop = scrollElement.scrollHeight;
         }
@@ -125,7 +125,11 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
 
         let scroll = Math.round(scrollElement.scrollHeight * scrollPercent);
 
-        const virtualDelta = calcVirtualDelta(index, opts, scrollState.current);
+        const virtualDelta = calcVirtualDelta(
+          index,
+          opts,
+          bigScrollState.current
+        );
 
         const isEnd = opts.count - index <= itemsPerScreenInt;
 
@@ -149,20 +153,20 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
 
           if (!isEnd || delta) {
             //no scroll with zero delta to end
-            scrollToState.current = {
+            searchState.current = {
               scroll: !isEnd
-                ? scrollState.current.lastScroll + Math.round(virtualDelta)
+                ? bigScrollState.current.lastScroll + Math.round(virtualDelta)
                 : scroll,
               item: index,
               isSmooth: true,
             };
 
             toggleEvents(true);
-            makeScroll(scrollToState.current.scroll);
+            makeScroll(searchState.current.scroll);
           }
         } else {
           if (delta) {
-            scrollToState.current = {
+            searchState.current = {
               scroll,
               item: index,
               isSmooth: false,
@@ -204,8 +208,8 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
 
         if (
           !(
-            scrollToState.current &&
-            checkScrollEndError(scrollElement, scrollToState.current.scroll)
+            searchState.current &&
+            checkScrollEndError(scrollElement, searchState.current.scroll)
           ) &&
           checkScrollEndError(scrollElement, scrollTop)
         ) {
@@ -213,29 +217,29 @@ export default function useBigScrollVirtualizer(opts: ScrollOptions) {
         }
 
         const delta =
-          scrollTop - (scrollState.current?.lastScroll ?? scrollTop);
+          scrollTop - (bigScrollState.current?.lastScroll ?? scrollTop);
 
-        let newState: ScrollState | undefined;
+        let newState: BigScrollState | undefined;
 
-        if (scrollToState.current?.scroll === scrollTop) {
-          if (!scrollToState.current.isSmooth) {
-            newState = calcStateBySearch(opts, scrollToState.current);
+        if (searchState.current?.scroll === scrollTop) {
+          if (!searchState.current.isSmooth) {
+            newState = calcStateBySearch(opts, searchState.current);
           }
 
           toggleVisibility(false);
           toggleEvents(false);
 
-          scrollToState.current = null;
+          searchState.current = null;
         }
 
         if (
           !newState &&
-          (!scrollToState.current ||
-            (scrollToState.current?.isSmooth && isScrollEnded.current))
+          (!searchState.current ||
+            (searchState.current?.isSmooth && isScrollEnded.current))
         ) {
           newState = calcStateByScroll(
             opts,
-            scrollState.current,
+            bigScrollState.current,
             Math.abs(delta) <= getMinSmoothDist(),
             scrollTop,
             delta

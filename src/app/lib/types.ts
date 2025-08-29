@@ -1,13 +1,11 @@
-import { LikeData } from "./db/models/Like";
-
-export interface ScrollOptions {
+export interface BigScrollOptions {
   count: bigint;
   size: number;
   getScrollElement: () => HTMLElement | null;
   getStubElement: () => HTMLElement | null;
 }
 
-export interface ScrollItem {
+export interface BigScrollItem {
   index: bigint;
   id: string;
   text: string;
@@ -15,19 +13,19 @@ export interface ScrollItem {
   size: number;
 }
 
-export interface ScrollState {
+export interface BigScrollState {
   item: bigint;
   offset: number;
   lastScroll: number;
 }
 
-export interface ScrollToState {
+export interface SearchState {
   item: bigint;
   scroll: number;
   isSmooth: boolean;
 }
 
-export type CacheEntry<T extends { _id: string }> = {
+export type CachedEntry<T extends { _id: string }> = {
   data: T | null;
   id: string;
   timestamp: number;

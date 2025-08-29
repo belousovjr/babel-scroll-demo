@@ -6,13 +6,13 @@ import {
   useRef,
   useState,
 } from "react";
-import { CacheEntry } from "../types";
+import { CachedEntry } from "../types";
 import CachedEntriesProvider from "../CachedEntriesProvider";
 import { getLikeDataItemsAction } from "@/app/actions";
 import { LikeData } from "../db/models/Like";
 
 export const LikesContext = createContext<{
-  list: Map<string, CacheEntry<LikeData>>;
+  list: Map<string, CachedEntry<LikeData>>;
   checkItems?: (ids: string[]) => void;
   fetchItems?: (ids: string[]) => void;
 }>({ list: new Map() });
@@ -26,7 +26,7 @@ export default function LikesContextProvider({
     new CachedEntriesProvider<LikeData>(getLikeDataItemsAction)
   );
 
-  const [list, setList] = useState(new Map<string, CacheEntry<LikeData>>());
+  const [list, setList] = useState(new Map<string, CachedEntry<LikeData>>());
 
   const checkItems = useCallback((ids: string[]) => {
     provider.current.checkItems(ids);
@@ -37,12 +37,13 @@ export default function LikesContextProvider({
   }, []);
 
   useEffect(() => {
-    const updateCallback = (items: Map<string, CacheEntry<LikeData>>) => {
+    const updateCallback = (items: Map<string, CachedEntry<LikeData>>) => {
       setList(new Map(items));
     };
     provider.current.on(updateCallback);
+    const callbackCleaner = provider.current;
     return () => {
-      provider.current.off(updateCallback);
+      callbackCleaner.off(updateCallback);
     };
   }, []);
 

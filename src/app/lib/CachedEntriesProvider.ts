@@ -1,16 +1,16 @@
-import { CacheEntry } from "./types";
+import { CachedEntry } from "./types";
 
 interface CachedEntriesProviderOptions {
   defaultIds?: string[];
 }
 
 export default class CachedEntriesProvider<T extends { _id: string }> {
-  #byTimestamp: CacheEntry<T>[] = [];
-  #byId = new Map<string, CacheEntry<T>>();
+  #byTimestamp: CachedEntry<T>[] = [];
+  #byId = new Map<string, CachedEntry<T>>();
   public cacheTime = 60 * 1000;
   public max = 5000;
   #fetchFn: (ids: string[]) => Promise<T[]>;
-  #callbacks = new Set<(items: Map<string, CacheEntry<T>>) => unknown>();
+  #callbacks = new Set<(items: Map<string, CachedEntry<T>>) => unknown>();
   #plannedIds = new Set<string>();
   #debounceInterval: NodeJS.Timeout | null = null;
 
@@ -35,14 +35,14 @@ export default class CachedEntriesProvider<T extends { _id: string }> {
       }
     }
   }
-  #checkIsOldCache(item: CacheEntry<T> | undefined) {
+  #checkIsOldCache(item: CachedEntry<T> | undefined) {
     return !item || Date.now() - item.timestamp > this.cacheTime;
   }
   #setOrUpdate(items: T[], emptyIds: string[]) {
     const timestamp = Date.now();
     for (const id of emptyIds) {
       const oldItem = this.#byId.get(id);
-      const newCachedItem: CacheEntry<T> = {
+      const newCachedItem: CachedEntry<T> = {
         data: null,
         id,
         isPending: false,
@@ -60,7 +60,7 @@ export default class CachedEntriesProvider<T extends { _id: string }> {
     for (const item of items) {
       const id = item._id;
       const oldItem = this.#byId.get(id);
-      const newCachedItem: CacheEntry<T> = {
+      const newCachedItem: CachedEntry<T> = {
         data: item,
         id,
         isPending: false,
@@ -82,10 +82,10 @@ export default class CachedEntriesProvider<T extends { _id: string }> {
       callback(this.#byId);
     }
   }
-  on(callback: (items: Map<string, CacheEntry<T>>) => unknown) {
+  on(callback: (items: Map<string, CachedEntry<T>>) => unknown) {
     this.#callbacks.add(callback);
   }
-  off(callback: (items: Map<string, CacheEntry<T>>) => unknown) {
+  off(callback: (items: Map<string, CachedEntry<T>>) => unknown) {
     this.#callbacks.delete(callback);
   }
   async #fetch(forceIds?: string[]) {
@@ -117,7 +117,7 @@ export default class CachedEntriesProvider<T extends { _id: string }> {
         if (item) {
           this.#byId.set(id, { ...item, isPending: true });
         } else {
-          const newItem: CacheEntry<T> = {
+          const newItem: CachedEntry<T> = {
             isPending: true,
             isLoadingSUS: true,
             timestamp,
