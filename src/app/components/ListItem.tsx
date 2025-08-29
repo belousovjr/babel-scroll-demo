@@ -28,7 +28,9 @@ export default function ListItem({
         onClick={onClick}
         className="flex flex-col justify-between items-start h-full p-2 cursor-pointer"
       >
-        <pre className="text-xl whitespace-pre-wrap break-words">{text}</pre>
+        <pre className="text-xl whitespace-pre-wrap break-words max-w-full">
+          {text}
+        </pre>
         <div className="flex gap-2 absolute right-2 bottom-2 text-white font-normal pr-4">
           <LikeButton id={id} />
         </div>
