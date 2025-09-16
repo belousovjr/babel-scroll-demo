@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Red_Hat_Mono } from "next/font/google";
 import "./globals.css";
 import { getSession } from "@/app/auth";
 import Providers from "./providers";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const interSans = Inter({
+  variable: "--font-inter-sans",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const redhatMono = Red_Hat_Mono({
+  variable: "--font-redhat-mono",
   subsets: ["latin"],
 });
 
@@ -65,7 +65,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${interSans.variable} ${redhatMono.variable} antialiased`}
       >
         <Providers session={session}>{children}</Providers>
       </body>

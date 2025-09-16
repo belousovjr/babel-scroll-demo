@@ -9,7 +9,10 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@agarimo/gibberish": "^1.0.0",
+    "@belousovjr/uikit": "^0.2.1",
     "base-x": "^5.0.1",
+    "jdenticon": "^3.3.0",
     "mongoose": "^8.18.0",
     "next": "15.5.2",
     "next-auth": "^4.24.11",

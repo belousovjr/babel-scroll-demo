@@ -6,6 +6,30 @@ import {
   SearchState,
 } from "./types";
 
+import { isGibberish } from "@agarimo/gibberish";
+
+export function genItemData(
+  index: bigint
+): Omit<BigScrollItem, "size" | "start"> {
+  const text = bigIntToText(index);
+  const trimText = text.trimEnd();
+  const lastWorld = trimText.split(" ").at(-1)!;
+  const withImage =
+    !!trimText &&
+    !/ {2,}/.test(trimText) &&
+    !isGibberish(trimText) &&
+    !isGibberish(`word ${lastWorld}`);
+
+  return {
+    index,
+    id: bigIntToId(index),
+    text,
+    image: withImage
+      ? `https://image.pollinations.ai/prompt/${text.trim()}?width=512&height=256&seed=43&nologo=true`
+      : null,
+  };
+}
+
 export function genItems(
   { count, size }: BigScrollOptions,
   { item, lastScroll, offset }: BigScrollState,
@@ -28,14 +52,7 @@ export function genItems(
 
   for (let i = startIndex; i < endIndex; i += 1n) {
     const start = lastScroll + Number(i - item) * size - offset;
-
-    newItems.push({
-      index: i,
-      id: bigIntToId(i),
-      text: bigIntToText(i),
-      size,
-      start,
-    });
+    newItems.push({ ...genItemData(i), start, size });
   }
 
   return newItems;
@@ -74,13 +91,12 @@ export function syncAnimationAttrs(
   scrollTop: number,
   offset: number
 ) {
-  const scrollElement = opts.getScrollElement();
-  if (scrollElement) {
-    if (scrollTop === scrollElement.scrollHeight) {
-      scrollElement.style.backgroundPositionY =
-        (calcItemsPerScreen(opts) % 1) * opts.size + "px";
+  const skeletonElement = opts.getSkeletonElement();
+  if (skeletonElement) {
+    if (scrollTop === opts.getScrollElement()?.scrollHeight) {
+      skeletonElement.style.backgroundPositionY = `${scrollTop}px`;
     } else {
-      scrollElement.style.backgroundPositionY = -offset + "px";
+      skeletonElement.style.backgroundPositionY = `${scrollTop - offset}px`;
     }
   }
 }
