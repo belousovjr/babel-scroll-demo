@@ -86,7 +86,9 @@ export default function useBigScrollVirtualizer(opts: BigScrollOptions) {
 
   const toggleVisibility = useCallback(
     (hide: boolean) => {
-      for (const el of opts.getScrollElement()?.children || []) {
+      for (const el of Array.from(
+        opts.getScrollElement()?.children[0]?.children || []
+      ).slice(2)) {
         if (hide) {
           el.classList.add("opacity-0");
         } else {
