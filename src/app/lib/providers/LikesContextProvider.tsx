@@ -5,7 +5,6 @@ import {
   useEffect,
   useRef,
   useState,
-  useTransition,
 } from "react";
 import { CachedEntry } from "../types";
 import CachedEntriesProvider from "../CachedEntriesProvider";

@@ -6,6 +6,9 @@ const nextConfig: NextConfig = {
       {
         hostname: "*.googleusercontent.com",
       },
+      {
+        hostname: "*.pollinations.ai",
+      },
     ],
   },
 };

@@ -12,7 +12,12 @@ const idLength = 64;
 const padding = "0";
 
 export function prepText(text: string) {
-  return text.toLowerCase().padEnd(Number(textLength), " ");
+  return text
+    .toLowerCase()
+    .split("")
+    .filter((c) => BASE27.includes(c))
+    .join("")
+    .padEnd(Number(textLength), " ");
 }
 
 function bigIntToUint8Array(big: bigint) {
@@ -52,11 +57,4 @@ export function textToId(text: string) {
 export function idToText(id: string) {
   const decoded = idToBigInt(id);
   return bigIntToText(decoded);
-}
-
-export function sanitizeText(text: string) {
-  return text
-    .split("")
-    .filter((c) => BASE27.includes(c.toLowerCase()))
-    .join("");
 }
