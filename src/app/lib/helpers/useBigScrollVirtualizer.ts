@@ -86,15 +86,18 @@ export default function useBigScrollVirtualizer(opts: BigScrollOptions) {
 
   const toggleVisibility = useCallback(
     (hide: boolean) => {
-      for (const el of Array.from(
-        opts.getScrollElement()?.children[0]?.children || []
-      ).slice(2)) {
-        if (hide) {
-          el.classList.add("opacity-0");
-        } else {
-          el.classList.remove("opacity-0");
-        }
+      if (hide) {
+        opts.getContentElement()?.classList.add("opacity-0");
+      } else {
+        opts.getContentElement()?.classList.remove("opacity-0");
       }
+      // for (const el of Array.from(opts.getContentElement()?.children || [])) {
+      //   if (hide) {
+      //     el.classList.add("opacity-0");
+      //   } else {
+      //     el.classList.remove("opacity-0");
+      //   }
+      // }
     },
     [opts]
   );

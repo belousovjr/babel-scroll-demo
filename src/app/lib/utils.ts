@@ -91,12 +91,17 @@ export function syncAnimationAttrs(
   scrollTop: number,
   offset: number
 ) {
+  const contentElement = opts.getContentElement();
   const skeletonElement = opts.getSkeletonElement();
-  if (skeletonElement) {
+  if (contentElement && skeletonElement) {
     if (scrollTop === opts.getScrollElement()?.scrollHeight) {
-      skeletonElement.style.backgroundPositionY = `${scrollTop}px`;
+      contentElement.style.backgroundPositionY = `${scrollTop}px`;
+      skeletonElement.style.backgroundPositionY = `${
+        (calcItemsPerScreen(opts) % 1) * opts.size
+      }px`;
     } else {
-      skeletonElement.style.backgroundPositionY = `${scrollTop - offset}px`;
+      contentElement.style.backgroundPositionY = `${scrollTop - offset}px`;
+      skeletonElement.style.backgroundPositionY = `${-offset}px`;
     }
   }
 }

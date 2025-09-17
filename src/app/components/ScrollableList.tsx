@@ -22,6 +22,7 @@ import ItemImage from "./ItemImage";
 
 export default function ScrollableList() {
   const parentRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const skeletonRef = useRef<HTMLDivElement>(null);
   const stubRef = useRef<HTMLDivElement>(null);
   const params = useCustomQueryParams();
@@ -43,6 +44,7 @@ export default function ScrollableList() {
         count: 27n ** 80n,
         size: 147,
         getScrollElement: () => parentRef.current,
+        getContentElement: () => contentRef.current,
         getSkeletonElement: () => skeletonRef.current,
         getStubElement: () => stubRef.current,
       }),
@@ -100,17 +102,17 @@ export default function ScrollableList() {
             ref={parentRef}
             className="flex justify-center overflow-y-auto min-h-full w-full"
           >
-            <div className="absolute top-0 h-full w-full max-w-[600px] outline-1 outline-general-50"></div>
+            <div
+              ref={skeletonRef}
+              className="absolute skeleton-background top-0 w-full h-full max-w-[600px] outline-1 outline-general-50"
+            ></div>
             <div
               style={{
                 height: `${bigScrollVirtualizer.totalSize}px`,
               }}
-              className="w-full max-w-[600px] relative select-none"
+              className="w-full max-w-[600px] relative skeleton-background select-none"
+              ref={contentRef}
             >
-              <div
-                ref={skeletonRef}
-                className="absolute top-0 skeleton-background h-full w-full max-w-[600px]"
-              ></div>
               {bigScrollVirtualizer.items.map((virtualItem) => (
                 <ListItem
                   key={virtualItem.index}
