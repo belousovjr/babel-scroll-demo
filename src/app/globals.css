@@ -10,7 +10,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-    --font-sans: var(--font-inter-sans);
+    --font-sans: var(--font-roboto-sans);
   --font-mono: var(--font-redhat-mono);
 }
  
@@ -21,8 +21,13 @@ html, body {
 } 
  
 .skeleton-background { 
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="147"><rect height="1" width="100%" fill="%23D7DBEC" /><circle cx="48" cy="38" r="28" fill="%23D7DBEC" /></svg>');
+  background-color: #ffffff;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="166"><rect height="1" width="100%" fill="%23D7DBEC" /><circle cx="48" cy="39" r="28" fill="%23D7DBEC" /></svg>');
   background-repeat: repeat-y;
-  background-size: min(600px, 100%) 147px;
-  background-position: center 0;
+  background-size: min(600px, 100%) 166px;
+  background-position-y: 0; 
 } 
+
+.clouds-background { 
+  background:  linear-gradient(180deg, #f5f6fa05, #f5f6fa);
+}

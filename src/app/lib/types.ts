@@ -2,6 +2,7 @@ export interface BigScrollOptions {
   count: bigint;
   size: number;
   getScrollElement: () => HTMLElement | null;
+  getContentElement: () => HTMLElement | null;
   getSkeletonElement: () => HTMLElement | null;
   getStubElement: () => HTMLElement | null;
 }
@@ -13,6 +14,9 @@ export interface BigScrollItem {
   start: number;
   size: number;
   image: string | null;
+  username: string;
+  nickname: string;
+  createdAt: string;
 }
 
 export interface BigScrollState {

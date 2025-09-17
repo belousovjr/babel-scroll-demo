@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Inter, Red_Hat_Mono } from "next/font/google";
+import { Roboto, Red_Hat_Mono } from "next/font/google";
 import "./globals.css";
 import { getSession } from "@/app/auth";
 import Providers from "./providers";
 
-const interSans = Inter({
-  variable: "--font-inter-sans",
+const interSans = Roboto({
+  variable: "--font-roboto-sans",
   subsets: ["latin"],
 });
 
