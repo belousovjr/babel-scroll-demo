@@ -5,7 +5,13 @@ import { useSession } from "next-auth/react";
 import { Button } from "@belousovjr/uikit";
 import { HeartIcon } from "lucide-react";
 
-export default function LikeButton({ id }: { id: string }) {
+export default function LikeButton({
+  id,
+  onClickNonAuth,
+}: {
+  id: string;
+  onClickNonAuth?: () => unknown;
+}) {
   const [isSendLoading, setIsSendLoading] = useState(false);
 
   const { status, data: session } = useSession();
@@ -40,7 +46,7 @@ export default function LikeButton({ id }: { id: string }) {
       size="sm"
       variant="white"
       icon={<HeartIcon className="fill-inherit" />}
-      className={`px-2 border-none min-w-13 ${
+      className={`p-0 border-none min-w-13 ${
         isLikedData || isLoading
           ? "text-red-100 fill-current"
           : "text-general-80 fill-transparent"
@@ -49,15 +55,16 @@ export default function LikeButton({ id }: { id: string }) {
         likesData.data?.emails.length
           ? `Liked by: ${likesData.data.emails
               .map((email) => email)
-              .join(", ")}`
+              .join(", ")}` //TODO components
           : undefined
       }
-      onClick={() => {
+      onClick={(e) => {
+        e.stopPropagation();
         if (!isLoading) {
           if (status === "authenticated") {
             likeItem();
           } else {
-            alert("Login to like");
+            onClickNonAuth?.();
           }
         }
       }}

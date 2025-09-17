@@ -14,6 +14,9 @@ export interface BigScrollItem {
   start: number;
   size: number;
   image: string | null;
+  username: string;
+  nickname: string;
+  createdAt: string;
 }
 
 export interface BigScrollState {

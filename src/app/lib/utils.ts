@@ -20,6 +20,23 @@ export function genItemData(
     !isGibberish(trimText) &&
     !isGibberish(`word ${lastWorld}`);
 
+  const year = pseudoRandomInt(index, 1990, 600);
+  const createdYear = pseudoRandomInt(index, year - 13, year - 80);
+  const usernameIndex = pseudoRandomInt(index, 3422, 9999);
+  const names = [
+    "Ishtar",
+    "Enki",
+    "Gilga",
+    "Marduk",
+    "Zigg",
+    "Hammu",
+    "Sumer",
+    "Shama",
+    "Enlil",
+    "Erech",
+  ];
+  const lastNames = ["Pulse", "Boss", "Day", "Boy", "Aura", "Vibes", ""];
+
   return {
     index,
     id: bigIntToId(index),
@@ -27,19 +44,27 @@ export function genItemData(
     image: withImage
       ? `https://image.pollinations.ai/prompt/${text.trim()}?width=512&height=256&seed=43&nologo=true`
       : null,
+    username: `bbl${usernameIndex}`,
+    nickname: [
+      names[pseudoRandomInt(index, 0, names.length - 1)],
+      lastNames[pseudoRandomInt(index, 0, lastNames.length - 1)],
+      year,
+    ].join(""),
+    createdAt: createdYear.toString(),
   };
 }
 
 export function genItems(
+  oldItems: BigScrollItem[],
   { count, size }: BigScrollOptions,
   { item, lastScroll, offset }: BigScrollState,
   itemsPerScreen: number,
   overScan: bigint
 ): BigScrollItem[] {
-  const itemsPerScreenBigInt = BigInt(Math.ceil(itemsPerScreen));
-
   const newItems: BigScrollItem[] = [];
   let startIndex = item - overScan;
+
+  const itemsPerScreenBigInt = BigInt(Math.ceil(itemsPerScreen));
 
   if (startIndex < 0n) {
     startIndex = 0n;
@@ -50,9 +75,20 @@ export function genItems(
     endIndex = count;
   }
 
+  const firstOldIndex = oldItems[0]?.index ?? null;
+
   for (let i = startIndex; i < endIndex; i += 1n) {
-    const start = lastScroll + Number(i - item) * size - offset;
-    newItems.push({ ...genItemData(i), start, size });
+    const oldItem = firstOldIndex && oldItems[Number(i - firstOldIndex)];
+    if (oldItem) {
+      newItems.push(oldItem);
+    } else {
+      const start = lastScroll + Number(i - item) * size - offset;
+      newItems.push({
+        ...genItemData(i),
+        start,
+        size,
+      });
+    }
   }
 
   return newItems;
@@ -195,4 +231,17 @@ export function calcVirtualDelta(
   { offset, item }: BigScrollState
 ) {
   return Number(index - item) * opts.size - offset;
+}
+
+export function genLink(id: string) {
+  return `${window.location.origin}?id=${id}`;
+}
+
+export function pseudoRandomInt(value: bigint, min = 0, max = 1) {
+  let seed = value * 668265263n;
+  seed = (seed ^ (seed >> 13n)) * 1274126177n;
+  seed = seed ^ (seed >> 16n);
+
+  const normalized = Number(seed & 0xffffffffn) / 4294967295;
+  return Math.round(min + (max - min) * normalized);
 }
