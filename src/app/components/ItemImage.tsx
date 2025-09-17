@@ -30,7 +30,7 @@ export default function ItemImage({
         className={`object-cover w-full h-full transition-opacity ${
           !isFetched ? "opacity-0" : "opacity-100"
         }`}
-        onLoadingComplete={() => {
+        onLoad={() => {
           setIsFetched(true);
         }}
         onError={() => {

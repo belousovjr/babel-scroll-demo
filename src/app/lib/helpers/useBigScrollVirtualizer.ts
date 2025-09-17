@@ -52,8 +52,9 @@ export default function useBigScrollVirtualizer(opts: BigScrollOptions) {
 
   const regenerateItems = useCallback(() => {
     startTransition(() => {
-      setItems(
+      setItems((v) =>
         genItems(
+          v,
           opts,
           bigScrollState.current,
           getItemsPerScreen(),
@@ -62,16 +63,6 @@ export default function useBigScrollVirtualizer(opts: BigScrollOptions) {
       );
     });
   }, [opts, getItemsPerScreen, getOverScan]);
-
-  const updateState = useCallback(
-    (newState: BigScrollState) => {
-      if (!compareBigScrollStates(newState, bigScrollState.current)) {
-        bigScrollState.current = newState;
-        regenerateItems();
-      }
-    },
-    [regenerateItems]
-  );
 
   const toggleEvents = useCallback(
     (disable: boolean) => {
@@ -86,17 +77,23 @@ export default function useBigScrollVirtualizer(opts: BigScrollOptions) {
 
   const toggleVisibility = useCallback(
     (hide: boolean) => {
-      for (const el of Array.from(
-        opts.getScrollElement()?.children[0]?.children || []
-      ).slice(2)) {
-        if (hide) {
-          el.classList.add("opacity-0");
-        } else {
-          el.classList.remove("opacity-0");
-        }
+      if (hide) {
+        opts.getContentElement()?.classList.add("opacity-0");
+      } else {
+        opts.getContentElement()?.classList.remove("opacity-0");
       }
     },
     [opts]
+  );
+
+  const updateState = useCallback(
+    (newState: BigScrollState) => {
+      if (!compareBigScrollStates(newState, bigScrollState.current)) {
+        bigScrollState.current = newState;
+        regenerateItems();
+      }
+    },
+    [regenerateItems]
   );
 
   const makeScroll = useCallback(
@@ -110,6 +107,13 @@ export default function useBigScrollVirtualizer(opts: BigScrollOptions) {
     },
     [opts]
   );
+
+  useEffect(() => {
+    if (!searchState.current) {
+      toggleVisibility(false);
+      toggleEvents(false);
+    }
+  }, [toggleEvents, toggleVisibility, items]);
 
   const search = useCallback(
     (index: bigint) => {
@@ -229,9 +233,6 @@ export default function useBigScrollVirtualizer(opts: BigScrollOptions) {
             newState = calcStateBySearch(opts, searchState.current);
           }
 
-          toggleVisibility(false);
-          toggleEvents(false);
-
           searchState.current = null;
         }
 
@@ -252,7 +253,11 @@ export default function useBigScrollVirtualizer(opts: BigScrollOptions) {
         syncAnimationAttrs(
           opts,
           scrollTop,
-          newState ? newState.offset : Math.random() * delta
+          newState
+            ? newState.offset
+            : Math.random() *
+                Math.sign(delta) *
+                Math.max(Math.abs(delta), opts.size)
         ); //fake scroll effect
 
         if (newState) {
@@ -272,7 +277,7 @@ export default function useBigScrollVirtualizer(opts: BigScrollOptions) {
         scrollElement.removeEventListener("scrollend", scrollEndHandler);
       };
     }
-  }, [getMinSmoothDist, opts, toggleEvents, toggleVisibility, updateState]);
+  }, [getMinSmoothDist, opts, updateState]);
 
   useEffect(() => {
     const resizeCallback = () => {
