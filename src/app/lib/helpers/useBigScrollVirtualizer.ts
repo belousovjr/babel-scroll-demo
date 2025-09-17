@@ -25,6 +25,7 @@ import {
 
 export default function useBigScrollVirtualizer(opts: BigScrollOptions) {
   const [items, setItems] = useState<BigScrollItem[]>([]);
+  const [isSearch, setIsSearch] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [, startResizeTransition] = useTransition();
   const bigScrollState = useRef<BigScrollState>({
@@ -167,6 +168,7 @@ export default function useBigScrollVirtualizer(opts: BigScrollOptions) {
               item: index,
               isSmooth: true,
             };
+            setIsSearch(true);
 
             toggleEvents(true);
             makeScroll(searchState.current.scroll);
@@ -178,6 +180,7 @@ export default function useBigScrollVirtualizer(opts: BigScrollOptions) {
               item: index,
               isSmooth: false,
             };
+            setIsSearch(true);
 
             toggleEvents(true);
             toggleVisibility(true);
@@ -234,6 +237,7 @@ export default function useBigScrollVirtualizer(opts: BigScrollOptions) {
           }
 
           searchState.current = null;
+          setIsSearch(false);
         }
 
         if (
@@ -296,5 +300,5 @@ export default function useBigScrollVirtualizer(opts: BigScrollOptions) {
     }
   }, [isPending, items.length, opts, regenerateItems]);
 
-  return { totalSize: containerHeight, items, search };
+  return { totalSize: containerHeight, items, search, isSearch };
 }
