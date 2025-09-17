@@ -61,25 +61,34 @@ export default function ScrollableList() {
   );
 
   const updateSearchState = useCallback(
-    (index: bigint) => {
+    (index: bigint | null) => {
       startTransition(() => {
-        setCurrentIndex(index);
+        setCurrentIndex(index !== null ? index : undefined);
       });
-      bigScrollVirtualizer.search(index);
+      if (index !== null) {
+        bigScrollVirtualizer.search(index);
+      }
     },
     [bigScrollVirtualizer]
   );
 
   useEffect(() => {
-    if (urlId && !isDefaultScrolled.current) {
-      updateSearchState(idToBigInt(urlId));
-      isDefaultScrolled.current = true;
-      startTransition(() => {
+    if (urlId) {
+      if (!isDefaultScrolled.current) {
+        updateSearchState(idToBigInt(urlId));
+        isDefaultScrolled.current = true;
         setModelId(urlId);
+      } else if (!bigScrollVirtualizer.isSearch) {
         router.replace(pathname, { scroll: false });
-      });
+      }
     }
-  }, [bigScrollVirtualizer, pathname, router, updateSearchState, urlId]);
+  }, [
+    bigScrollVirtualizer.isSearch,
+    pathname,
+    router,
+    updateSearchState,
+    urlId,
+  ]);
 
   return (
     <>
@@ -87,11 +96,8 @@ export default function ScrollableList() {
         <Header
           onSearch={(value) => {
             const search = value.trimEnd();
-            if (search) {
-              updateSearchState(textToBigInt(search));
-            } else {
-              setCurrentIndex(undefined);
-            }
+
+            updateSearchState(search ? textToBigInt(search) : null);
           }}
           currentSearch={
             typeof currentIndex !== "undefined"
