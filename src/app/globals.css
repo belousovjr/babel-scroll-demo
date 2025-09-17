@@ -27,7 +27,4 @@ html, body {
   background-size: min(600px, 100%) 166px;
   background-position-y: 0; 
 } 
-
-.clouds-background { 
-  background:  linear-gradient(180deg, #f5f6fa05, #f5f6fa);
-}
+ 

@@ -109,7 +109,7 @@ export default function ScrollableList() {
         <div className="relative flex-1 flex flex-col overflow-hidden mt-16">
           <div
             ref={parentRef}
-            className="flex justify-center overflow-y-auto min-h-full w-full clouds-background"
+            className="flex justify-center overflow-y-auto min-h-full w-full bg-gradient-to-b from-[64px] from-general-30/50 to-general-30"
           >
             <div
               ref={skeletonRef}
