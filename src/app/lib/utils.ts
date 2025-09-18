@@ -127,9 +127,14 @@ export function syncAnimationAttrs(
   scrollTop: number,
   offset: number
 ) {
+  const scrollElement = opts.getScrollElement();
   const contentElement = opts.getContentElement();
   const skeletonElement = opts.getSkeletonElement();
-  if (contentElement && skeletonElement) {
+  if (scrollElement && contentElement && skeletonElement) {
+    scrollElement.style.backgroundPositionY = `calc(100% - ${
+      (1 - scrollTop / scrollElement.scrollHeight) * 200
+    }%), center`;
+
     if (scrollTop === opts.getScrollElement()?.scrollHeight) {
       contentElement.style.backgroundPositionY = `${scrollTop}px`;
       skeletonElement.style.backgroundPositionY = `${

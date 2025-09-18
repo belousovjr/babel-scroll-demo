@@ -3,6 +3,7 @@
 import type { Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
 import LikesContextProvider from "./lib/providers/LikesContextProvider";
+import ServiceContextProvider from "./lib/providers/ServiceContextProvider";
 
 export default function Providers({
   session,
@@ -13,7 +14,9 @@ export default function Providers({
 }) {
   return (
     <SessionProvider session={session}>
-      <LikesContextProvider>{children}</LikesContextProvider>
+      <ServiceContextProvider>
+        <LikesContextProvider>{children}</LikesContextProvider>
+      </ServiceContextProvider>
     </SessionProvider>
   );
 }

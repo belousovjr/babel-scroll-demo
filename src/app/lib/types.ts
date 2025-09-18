@@ -1,3 +1,6 @@
+import { Notification } from "@belousovjr/uikit";
+import { ComponentProps } from "react";
+
 export interface BigScrollOptions {
   count: bigint;
   size: number;
@@ -38,3 +41,9 @@ export type CachedEntry<T extends { _id: string }> = {
   isLoading: boolean;
   isPending: boolean;
 };
+
+export interface SnackbarData {
+  text: string;
+  variant?: ComponentProps<typeof Notification>["variant"];
+  timestamp: number;
+}

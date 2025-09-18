@@ -2,6 +2,7 @@ import { BigScrollItem } from "../lib/types";
 import { Avatar } from "./Avatar";
 import LikeButton from "./LikeButton";
 import ItemImage from "./ItemImage";
+import useServiceContext from "../lib/helpers/useServiceContext";
 
 interface ListItemProps extends BigScrollItem {
   isSelected: boolean;
@@ -20,6 +21,8 @@ export default function ListItem({
   isSelected,
   onClick,
 }: ListItemProps) {
+  const { setNotification } = useServiceContext();
+
   return (
     <div
       style={{
@@ -53,7 +56,13 @@ export default function ListItem({
         </div>
       </div>
       <div className="flex gap-2 justify-end min-h-9">
-        <LikeButton id={id} onClickNonAuth={onClick} />
+        <LikeButton
+          id={id}
+          onClickNonAuth={() => {
+            setNotification?.({ text: "Login to Like", variant: "alert" });
+            onClick();
+          }}
+        />
       </div>
     </div>
   );

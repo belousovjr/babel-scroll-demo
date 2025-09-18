@@ -13,6 +13,16 @@
     --font-sans: var(--font-roboto-sans);
   --font-mono: var(--font-redhat-mono);
 }
+
+@layer utilities {
+  @keyframes fade-up {
+    0% { opacity: 0; transform: scale(0.8); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+  .animate-fade-up {
+    animation: fade-up 150ms ease-out forwards;
+  }  
+}
  
 html, body { 
   /* scrollbar-gutter: stable; */
@@ -26,5 +36,14 @@ html, body {
   background-repeat: repeat-y;
   background-size: min(600px, 100%) 166px;
   background-position-y: 0; 
-} 
- 
+}
+
+.clouds-background {
+  background: url("./../../public/clouds.svg"), linear-gradient(180deg, #F5F6FA50, #F5F6FA );
+  background-repeat: no-repeat;
+  background-size: 100% auto;
+  background-position-y: calc(100% - 200%), center;
+}
+
+  /* transition: background-position 100ms; */
+/* bg-gradient-to-b from-[64px] from-general-30/50 to-general-30 */

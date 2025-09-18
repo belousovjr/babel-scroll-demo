@@ -22,6 +22,8 @@ import LikeButton from "./LikeButton";
 import { useSession } from "next-auth/react";
 import GoogleAuthButton from "./GoogleAuthButton";
 import Header from "./Header";
+import useServiceContext from "../lib/helpers/useServiceContext";
+import Snackbar from "./Snackbar";
 
 export default function ScrollableList() {
   const parentRef = useRef<HTMLDivElement>(null);
@@ -32,6 +34,8 @@ export default function ScrollableList() {
   const urlId = params?.get("id");
   const router = useRouter();
   const pathname = usePathname();
+
+  const { setNotification } = useServiceContext();
 
   const { status } = useSession();
 
@@ -109,7 +113,7 @@ export default function ScrollableList() {
         <div className="relative flex-1 flex flex-col overflow-hidden mt-16">
           <div
             ref={parentRef}
-            className="flex justify-center overflow-y-auto min-h-full w-full bg-gradient-to-b from-[64px] from-general-30/50 to-general-30"
+            className="flex justify-center overflow-y-auto min-h-full w-full clouds-background"
           >
             <div
               ref={skeletonRef}
@@ -164,7 +168,10 @@ export default function ScrollableList() {
                 window.navigator.clipboard
                   .writeText(genLink(modalData.id))
                   .then(() => {
-                    alert("LINK COPIED");
+                    setNotification?.({
+                      text: "Link copied",
+                      variant: "success",
+                    });
                   });
               }}
               title="Copy Link"
@@ -184,6 +191,7 @@ export default function ScrollableList() {
           </div>
         )}
       </Modal>
+      <Snackbar />
     </>
   );
 }
