@@ -63,7 +63,6 @@ export default memo(function ListItem({
           status="SHOW_RESULT"
           hidden={!isSelected}
           disabled={!isTopSelected}
-          className="z-30"
         >
           <div className="flex-1 overflow-hidden">
             <p className="shrink-1 grow-0 overflow-hidden overflow-ellipsis text-nowrap mb-0.5">
