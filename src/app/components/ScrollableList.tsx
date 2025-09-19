@@ -130,7 +130,7 @@ export default function ScrollableList() {
         <Header
           onSearch={(value) => {
             const search = prepText(value);
-            updateSearchState(search ? textToBigInt(search) : null);
+            updateSearchState(search.trimEnd() ? textToBigInt(search) : null);
           }}
           currentSearch={
             typeof currentIndex !== "undefined"
