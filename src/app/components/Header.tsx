@@ -72,7 +72,11 @@ export default function Header({
                 (document.activeElement as HTMLInputElement | null)?.blur();
               }
             }}
-            className="absolute pointer-events-none opacity-0 has-focus-within:opacity-100 transition-opacity has-focus-within:pointer-events-auto lg:pointer-events-auto lg:opacity-100 left-0 top-16 lg:static p-2 flex-1 lg:w-[400px] w-full bg-white"
+            className={`absolute has-focus-within:opacity-100 transition-opacity has-focus-within:pointer-events-auto lg:pointer-events-auto lg:opacity-100 left-0 top-16 lg:static p-2 flex-1 lg:w-[400px] w-full bg-white ${
+              lastActiveStatus !== "SEARCH"
+                ? "pointer-events-none opacity-0"
+                : "opacity-100"
+            }`}
           >
             <TutorialTip status="SEARCH" disabled={isSearch}>
               <div className="w-full grid grid-cols-[1fr_auto] gap-2">
