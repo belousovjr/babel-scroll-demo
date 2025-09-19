@@ -7,10 +7,10 @@ import { HeartIcon } from "lucide-react";
 
 export default function LikeButton({
   id,
-  onClickNonAuth,
+  onClick,
 }: {
   id: string;
-  onClickNonAuth?: () => unknown;
+  onClick?: () => unknown;
 }) {
   const [isSendLoading, setIsSendLoading] = useState(false);
 
@@ -63,9 +63,8 @@ export default function LikeButton({
         if (!isLoading) {
           if (status === "authenticated") {
             likeItem();
-          } else {
-            onClickNonAuth?.();
           }
+          onClick?.();
         }
       }}
       type="button"

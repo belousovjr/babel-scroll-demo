@@ -1,6 +1,6 @@
 "use client";
 
-import { bigIntToText, idToBigInt, textToBigInt } from "../lib/codec";
+import { bigIntToText, idToBigInt, prepText, textToBigInt } from "../lib/codec";
 import useBigScrollVirtualizer from "../lib/helpers/useBigScrollVirtualizer";
 import {
   useCallback,
@@ -22,6 +22,10 @@ import LikeButton from "./LikeButton";
 import { useSession } from "next-auth/react";
 import GoogleAuthButton from "./GoogleAuthButton";
 import Header from "./Header";
+import useServiceContext from "../lib/helpers/useServiceContext";
+import Snackbar from "./Snackbar";
+import useTutorial from "../lib/helpers/useTutorial";
+import TutorialTip from "./TutorialTip";
 
 export default function ScrollableList() {
   const parentRef = useRef<HTMLDivElement>(null);
@@ -33,9 +37,13 @@ export default function ScrollableList() {
   const router = useRouter();
   const pathname = usePathname();
 
+  const { setNotification } = useServiceContext();
+  const { checkStatus } = useTutorial();
+
   const { status } = useSession();
 
   const [currentIndex, setCurrentIndex] = useState<bigint>();
+  const [isModalOpened, setIsModalOpened] = useState(false);
   const [, startTransition] = useTransition();
 
   const [modelId, setModelId] = useState<string | null>(null);
@@ -66,10 +74,11 @@ export default function ScrollableList() {
         setCurrentIndex(index !== null ? index : undefined);
       });
       if (index !== null) {
+        checkStatus("SHOW_RESULT");
         bigScrollVirtualizer.search(index);
       }
     },
-    [bigScrollVirtualizer]
+    [bigScrollVirtualizer, checkStatus]
   );
 
   useEffect(() => {
@@ -90,20 +99,45 @@ export default function ScrollableList() {
     urlId,
   ]);
 
+  useEffect(() => {
+    const timeout = setTimeout(
+      () => {
+        setIsModalOpened(!!modalData);
+      },
+      modalData ? 200 : 0
+    );
+
+    if (modalData) {
+      if (status !== "authenticated") {
+        checkStatus("LOGIN_TO_LIKE");
+      } else {
+        checkStatus("CHECK_ACTIONS");
+      }
+    }
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [checkStatus, modalData, status]);
+
+  const onClickItem = useCallback((id: string) => {
+    setModelId(id);
+  }, []);
+
   return (
     <>
       <div className="flex flex-col min-h-dvh h-dvh overflow-hidden">
         <Header
           onSearch={(value) => {
-            const search = value.trimEnd();
-
-            updateSearchState(search ? textToBigInt(search) : null);
+            const search = prepText(value);
+            updateSearchState(search.trimEnd() ? textToBigInt(search) : null);
           }}
           currentSearch={
             typeof currentIndex !== "undefined"
               ? bigIntToText(currentIndex).trimEnd()
               : ""
           }
+          isSearch={bigScrollVirtualizer.isSearch}
         />
 
         <div className="relative flex-1 flex flex-col overflow-hidden mt-16">
@@ -124,12 +158,10 @@ export default function ScrollableList() {
             >
               {bigScrollVirtualizer.items.map((virtualItem) => (
                 <ListItem
-                  key={virtualItem.index}
                   {...virtualItem}
+                  key={virtualItem.index}
                   isSelected={virtualItem.index === currentIndex}
-                  onClick={() => {
-                    setModelId(virtualItem.id);
-                  }}
+                  onClick={onClickItem}
                 />
               ))}
             </div>
@@ -157,33 +189,55 @@ export default function ScrollableList() {
         {modalData?.image && (
           <ItemImage src={modalData.image} className="w-full" />
         )}
-        {!!modalData && (
-          <div className="flex gap-2 justify-end">
-            <Button
-              onClick={() => {
-                window.navigator.clipboard
-                  .writeText(genLink(modalData.id))
-                  .then(() => {
-                    alert("LINK COPIED");
-                  });
-              }}
-              title="Copy Link"
-              size="sm"
-              variant="white"
-              className="border-none p-0 text-general-80"
+        <div className="ml-auto flex">
+          {!!modalData && (
+            <TutorialTip
+              status="CHECK_ACTIONS"
+              defaultPosition="top"
+              disabled={!isModalOpened}
+              hidden={status !== "authenticated"}
             >
-              <LinkIcon />
-            </Button>
-            {status === "authenticated" ? (
-              <LikeButton id={modalData.id} />
-            ) : (
-              <GoogleAuthButton callbackUrl={genLink(modalData.id)}>
-                Login to Like
-              </GoogleAuthButton>
-            )}
-          </div>
-        )}
+              <Button
+                onClick={() => {
+                  window.navigator.clipboard
+                    .writeText(genLink(modalData.id))
+                    .then(() => {
+                      setNotification?.({
+                        text: "Link copied",
+                        variant: "success",
+                      });
+                    });
+                  checkStatus("FINAL");
+                }}
+                title="Copy Link"
+                size="sm"
+                variant="white"
+                className="border-none p-0 text-general-80 mr-2"
+                icon={<LinkIcon />}
+              />
+              {status === "authenticated" ? (
+                <LikeButton
+                  id={modalData.id}
+                  onClick={() => {
+                    checkStatus("FINAL");
+                  }}
+                />
+              ) : (
+                <TutorialTip
+                  status="LOGIN_TO_LIKE"
+                  defaultPosition="top"
+                  disabled={!isModalOpened}
+                >
+                  <GoogleAuthButton callbackUrl={genLink(modalData.id)}>
+                    Log in to Like
+                  </GoogleAuthButton>
+                </TutorialTip>
+              )}
+            </TutorialTip>
+          )}
+        </div>
       </Modal>
+      <Snackbar />
     </>
   );
 }
