@@ -1,3 +1,7 @@
+import { Notification } from "@belousovjr/uikit";
+import { ComponentProps } from "react";
+import { tutorialStatuses } from "./constants";
+
 export interface BigScrollOptions {
   count: bigint;
   size: number;
@@ -38,3 +42,13 @@ export type CachedEntry<T extends { _id: string }> = {
   isLoading: boolean;
   isPending: boolean;
 };
+
+export interface SnackbarData {
+  text: string;
+  variant?: ComponentProps<typeof Notification>["variant"];
+  timestamp: number;
+}
+
+export type TutorialStatusOption = (typeof tutorialStatuses)[number];
+
+export type TutorialStatusState = Record<TutorialStatusOption, boolean>;

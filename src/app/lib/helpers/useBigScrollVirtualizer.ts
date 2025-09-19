@@ -245,10 +245,17 @@ export default function useBigScrollVirtualizer(opts: BigScrollOptions) {
           (!searchState.current ||
             (searchState.current?.isSmooth && isScrollEnded.current))
         ) {
+          const isSmooth = Math.abs(delta) <= getMinSmoothDist();
+
+          if (!isSmooth) {
+            toggleEvents(true);
+            toggleVisibility(true);
+          }
+
           newState = calcStateByScroll(
             opts,
             bigScrollState.current,
-            Math.abs(delta) <= getMinSmoothDist(),
+            isSmooth,
             scrollTop,
             delta
           );
