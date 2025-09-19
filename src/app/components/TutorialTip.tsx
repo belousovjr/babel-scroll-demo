@@ -39,7 +39,7 @@ export default function TutorialTip({
         return (
           <div className="grid gap-4">
             <div>
-              <span className="font-bold"> Welcome to the Babel Scroll.</span>
+              <span className="font-bold"> Welcome to The Babel Scroll.</span>
               <span className="flex gap-2 items-center text-general-60 text-xs">
                 inspired by the
                 <Link
