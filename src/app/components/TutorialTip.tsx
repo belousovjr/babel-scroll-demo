@@ -22,19 +22,6 @@ export default function TutorialTip({
 }) {
   const content = useMemo<ReactNode>(() => {
     switch (status) {
-      // case "INTRO":
-      //   return "INTRO";
-      // <div className="grid gap-2">
-      //   <span>
-      //     <span className="font-bold">Edit your Task</span> by clicking:{" "}
-      //     <EditIcon className="inline ml-3 bg-primary-70 outline-2 outline-primary-70 rounded-sm" />
-      //   </span>
-      //   <span className="hidden lg:inline">
-      //     Or <span className="font-bold">Change Status</span> by holding
-      //     down:{" "}
-      //     <GripHorizontalIcon className="inline ml-3 bg-primary-70 outline-2 outline-primary-70 rounded-sm" />
-      //   </span>
-      // </div>
       case "SEARCH":
         return (
           <div className="grid gap-4">
@@ -97,8 +84,9 @@ export default function TutorialTip({
                 checkStatus("FINAL");
               }}
               size="sm"
+              variant="destructiveSecondary"
             >
-              Finish Tutorial
+              Skip Tutorial
             </Button>
           </div>
         </div>
