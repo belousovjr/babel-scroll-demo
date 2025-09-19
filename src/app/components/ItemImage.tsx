@@ -19,7 +19,7 @@ export default function ItemImage({
     <div
       className={`bg-general-40 rounded-xl overflow-hidden ${
         !isFetched ? "animate-pulse" : ""
-      } ${className}`}
+      } ${className ?? ""}`}
     >
       <Image
         src={src}

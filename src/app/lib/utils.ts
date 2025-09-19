@@ -44,7 +44,7 @@ export function genItemData(
     image: withImage
       ? `https://image.pollinations.ai/prompt/${text.trim()}?width=512&height=256&seed=43&nologo=true`
       : null,
-    username: `bbl${usernameIndex}`,
+    username: `bbs${usernameIndex}`,
     nickname: [
       names[pseudoRandomInt(index, 0, names.length - 1)],
       lastNames[pseudoRandomInt(index, 0, lastNames.length - 1)],
@@ -131,9 +131,9 @@ export function syncAnimationAttrs(
   const contentElement = opts.getContentElement();
   const skeletonElement = opts.getSkeletonElement();
   if (scrollElement && contentElement && skeletonElement) {
-    scrollElement.style.backgroundPositionY = `calc(100% - ${
-      (1 - scrollTop / scrollElement.scrollHeight) * 200
-    }%), center`;
+    scrollElement.style.backgroundPositionY = `${
+      80 - (1 - scrollTop / scrollElement.scrollHeight) * 20
+    }%, center`;
 
     if (scrollTop === opts.getScrollElement()?.scrollHeight) {
       contentElement.style.backgroundPositionY = `${scrollTop}px`;

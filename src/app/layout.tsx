@@ -14,9 +14,9 @@ const redhatMono = Red_Hat_Mono({
   subsets: ["latin"],
 });
 
-const APP_NAME = "Babel Wall Demo";
-const APP_DEFAULT_TITLE = "Babel Wall Demo";
-const APP_TITLE_TEMPLATE = "%s - Babel Wall Demo";
+const APP_NAME = "Babel Scroll Demo";
+const APP_DEFAULT_TITLE = "Babel Scroll Demo";
+const APP_TITLE_TEMPLATE = "%s - Babel Scroll Demo";
 const APP_DESCRIPTION =
   "An Ultra-Overflowing List Inspired by the Library of Babel.";
 

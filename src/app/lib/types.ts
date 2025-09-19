@@ -1,5 +1,6 @@
 import { Notification } from "@belousovjr/uikit";
 import { ComponentProps } from "react";
+import { tutorialStatuses } from "./constants";
 
 export interface BigScrollOptions {
   count: bigint;
@@ -47,3 +48,7 @@ export interface SnackbarData {
   variant?: ComponentProps<typeof Notification>["variant"];
   timestamp: number;
 }
+
+export type TutorialStatusOption = (typeof tutorialStatuses)[number];
+
+export type TutorialStatusState = Record<TutorialStatusOption, boolean>;
