@@ -73,7 +73,7 @@ export default memo(function ListItem({
             </p>
             <div className="flex gap-4 items-center">
               <pre
-                className={`flex-1 whitespace-pre-wrap h-18.5 break-words max-w-full font-sans transition-colors underline underline-offset-5 decoration-4 overflow-hidden ${
+                className={`flex-1 whitespace-pre-wrap h-18.5 break-all max-w-full font-sans underline underline-offset-5 decoration-4 overflow-hidden ${
                   isSelected
                     ? "decoration-primary-100"
                     : "decoration-transparent"

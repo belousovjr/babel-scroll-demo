@@ -131,18 +131,21 @@ export function syncAnimationAttrs(
   const contentElement = opts.getContentElement();
   const skeletonElement = opts.getSkeletonElement();
   if (scrollElement && contentElement && skeletonElement) {
-    scrollElement.style.backgroundPositionY = `${
-      80 - (1 - scrollTop / scrollElement.scrollHeight) * 20
-    }%, center`;
+    scrollElement.style.backgroundPositionY = `${(
+      80 -
+      (1 - scrollTop / scrollElement.scrollHeight) * 20
+    ).toFixed(1)}%, center`;
 
-    if (scrollTop === opts.getScrollElement()?.scrollHeight) {
-      contentElement.style.backgroundPositionY = `${scrollTop}px`;
-      skeletonElement.style.backgroundPositionY = `${
-        (calcItemsPerScreen(opts) % 1) * opts.size
-      }px`;
+    const isBottom = scrollTop === opts.getScrollElement()?.scrollHeight;
+
+    if (Number(getComputedStyle(contentElement).opacity)) {
+      contentElement.style.backgroundPositionY = isBottom
+        ? `${scrollTop}px`
+        : `${scrollTop - offset}px`;
     } else {
-      contentElement.style.backgroundPositionY = `${scrollTop - offset}px`;
-      skeletonElement.style.backgroundPositionY = `${-offset}px`;
+      skeletonElement.style.backgroundPositionY = isBottom
+        ? `${(calcItemsPerScreen(opts) % 1) * opts.size}px`
+        : `${-offset}px`;
     }
   }
 }

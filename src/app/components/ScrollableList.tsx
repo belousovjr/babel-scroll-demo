@@ -153,7 +153,7 @@ export default function ScrollableList() {
               style={{
                 height: `${bigScrollVirtualizer.totalSize}px`,
               }}
-              className="w-full max-w-[600px] transition-opacity relative skeleton-background select-none"
+              className="w-full max-w-[600px] relative skeleton-background select-none"
               ref={contentRef}
             >
               {bigScrollVirtualizer.items.map((virtualItem) => (
