@@ -147,7 +147,7 @@ export default function ScrollableList() {
           >
             <div
               ref={skeletonRef}
-              className="absolute skeleton-background top-0 w-full h-full max-w-[600px] outline-1 outline-general-50"
+              className="absolute skeleton-background blur-[1px] top-0 w-full h-full max-w-[600px] outline-1 outline-general-50"
             ></div>
             <div
               style={{
