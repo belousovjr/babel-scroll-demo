@@ -2,11 +2,11 @@
 
 import type { Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
-import LikesContextProvider from "./lib/providers/LikesContextProvider";
-import ServiceContextProvider from "./lib/providers/ServiceContextProvider";
+import LikesContextProvider from "./providers/LikesContextProvider";
+import ServiceContextProvider from "./providers/ServiceContextProvider";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
-import { persistor, store } from "./lib/store/store";
+import { persistor, store } from "./store/store";
 
 export default function Providers({
   session,

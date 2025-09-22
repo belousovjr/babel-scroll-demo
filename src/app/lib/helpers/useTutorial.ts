@@ -1,7 +1,7 @@
-import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { TutorialStatusOption } from "../types";
 import { useCallback, useMemo } from "react";
-import { markStatus } from "../store/slices/tutorialSlice";
+import { markStatus } from "../../store/slices/tutorialSlice";
 import { tutorialStatuses } from "../constants";
 
 export default function useTutorial() {

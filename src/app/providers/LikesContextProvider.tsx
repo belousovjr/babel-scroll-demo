@@ -6,11 +6,11 @@ import {
   useRef,
   useState,
 } from "react";
-import { CachedEntry } from "../types";
-import CachedEntriesProvider from "../CachedEntriesProvider";
+import { CachedEntry } from "../lib/types";
+import CachedEntriesProvider from "../lib/CachedEntriesProvider";
 import { getLikeDataItemsAction } from "@/app/actions";
-import { LikeData } from "../db/models/Like";
-import useLocalStorage from "../helpers/useLocalStorage";
+import { LikeData } from "../lib/db/models/Like";
+import useLocalStorage from "../lib/helpers/useLocalStorage";
 
 export const LikesContext = createContext<{
   list: Map<string, CachedEntry<LikeData>>;
