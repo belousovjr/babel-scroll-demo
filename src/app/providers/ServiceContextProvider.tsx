@@ -1,6 +1,6 @@
 "use client";
 import { ReactNode, useState, createContext, useCallback } from "react";
-import { SnackbarData } from "../types";
+import { SnackbarData } from "../lib/types";
 
 export const ServiceContext = createContext<{
   notification: SnackbarData | null;

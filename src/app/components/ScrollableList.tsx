@@ -11,21 +11,23 @@ import {
   useTransition,
 } from "react";
 import { BigScrollOptions } from "../lib/types";
-import ListItem from "./ListItem";
 import useCustomQueryParams from "../lib/helpers/useCustomQueryParams";
 import { Button, Modal } from "@belousovjr/uikit";
 import { LinkIcon } from "lucide-react";
 import { genItemData, genLink } from "../lib/utils";
-import ItemImage from "./ItemImage";
 import { usePathname, useRouter } from "next/navigation";
-import LikeButton from "./LikeButton";
 import { useSession } from "next-auth/react";
-import GoogleAuthButton from "./GoogleAuthButton";
-import Header from "./Header";
 import useServiceContext from "../lib/helpers/useServiceContext";
-import Snackbar from "./Snackbar";
 import useTutorial from "../lib/helpers/useTutorial";
-import TutorialTip from "./TutorialTip";
+import dynamic from "next/dynamic";
+
+const TutorialTip = dynamic(() => import("./TutorialTip"));
+const Snackbar = dynamic(() => import("./Snackbar"));
+const Header = dynamic(() => import("./Header"));
+const GoogleAuthButton = dynamic(() => import("./GoogleAuthButton"));
+const ListItem = dynamic(() => import("./ListItem"));
+const ItemImage = dynamic(() => import("./ItemImage"));
+const LikeButton = dynamic(() => import("./LikeButton"));
 
 export default function ScrollableList() {
   const parentRef = useRef<HTMLDivElement>(null);
