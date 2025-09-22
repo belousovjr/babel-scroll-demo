@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from "react";
 import { Button, Textfield } from "@belousovjr/uikit";
-import { SearchIcon, SendHorizonalIcon, SendIcon } from "lucide-react";
+import { SearchIcon, SendHorizonalIcon } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import { useMemo, useState } from "react";
