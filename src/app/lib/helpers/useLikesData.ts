@@ -1,5 +1,5 @@
 import { useContext, useEffect, useMemo } from "react";
-import { LikesContext } from "../providers/LikesContextProvider";
+import { LikesContext } from "../../providers/LikesContextProvider";
 import { LikeData } from "../db/models/Like";
 
 export default function useLikesData(id: string): {
