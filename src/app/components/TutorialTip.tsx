@@ -27,8 +27,8 @@ export default function TutorialTip({
           <div className="grid gap-4">
             <div>
               <span className="font-bold"> Welcome to The Babel Scroll.</span>
-              <span className="flex gap-2 items-center text-general-60 text-xs">
-                inspired by the
+              <span className="block text-general-60 text-xs">
+                inspired by the{" "}
                 <Link
                   target="_blank"
                   href="https://en.wikipedia.org/wiki/The_Library_of_Babel"
@@ -40,8 +40,8 @@ export default function TutorialTip({
               </span>
             </div>
             <div>
-              Start your <span className="font-bold">Search</span> in a list of{" "}
-              <span className="font-bold">27⁸⁰-1</span> items.
+              Start your <span className="font-bold">Search</span> in a scroll
+              of <span className="font-bold">27⁸⁰-1</span> entries.
               <br />
               Only latin characters and spaces are allowed.
             </div>
