@@ -40,8 +40,8 @@ export default function TutorialTip({
               </span>
             </div>
             <div>
-              Start your <span className="font-bold">Search</span> in a list of{" "}
-              <span className="font-bold">27⁸⁰-1</span> items.
+              Start your <span className="font-bold">Search</span> in a scroll
+              of <span className="font-bold">27⁸⁰-1</span> entries.
               <br />
               Only latin characters and spaces are allowed.
             </div>

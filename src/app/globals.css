@@ -38,12 +38,18 @@ html, body {
   background-position-y: 0; 
 }
 
+@keyframes scaleProgress {
+  0% {
+    background-position-y: 60%, center;
+  }
+  100% {
+    background-position-y: 80%, center;
+  }
+}
+
 .clouds-background {
   background: url("./../../public/clouds.svg"), linear-gradient(180deg, #F5F6FA50, #F5F6FA );
   background-repeat: no-repeat;
   background-size: 100% auto;
-  background-position-y: 60%, center;
+  animation: scaleProgress scroll(self); 
 }
-
-  /* transition: background-position 100ms; */
-/* bg-gradient-to-b from-[64px] from-general-30/50 to-general-30 */

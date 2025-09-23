@@ -288,7 +288,7 @@ export default function useBigScrollVirtualizer(opts: BigScrollOptions) {
         scrollElement.removeEventListener("scrollend", scrollEndHandler);
       };
     }
-  }, [getMinSmoothDist, opts, updateState]);
+  }, [getMinSmoothDist, opts, toggleEvents, toggleVisibility, updateState]);
 
   useEffect(() => {
     const resizeCallback = () => {

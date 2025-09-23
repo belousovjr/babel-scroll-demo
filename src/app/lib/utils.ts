@@ -131,11 +131,6 @@ export function syncAnimationAttrs(
   const contentElement = opts.getContentElement();
   const skeletonElement = opts.getSkeletonElement();
   if (scrollElement && contentElement && skeletonElement) {
-    scrollElement.style.backgroundPositionY = `${(
-      80 -
-      (1 - scrollTop / scrollElement.scrollHeight) * 20
-    ).toFixed(1)}%, center`;
-
     const isBottom = scrollTop === opts.getScrollElement()?.scrollHeight;
 
     if (Number(getComputedStyle(contentElement).opacity)) {
