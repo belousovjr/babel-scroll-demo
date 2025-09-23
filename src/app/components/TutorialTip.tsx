@@ -27,8 +27,8 @@ export default function TutorialTip({
           <div className="grid gap-4">
             <div>
               <span className="font-bold"> Welcome to The Babel Scroll.</span>
-              <span className="flex gap-2 items-center text-general-60 text-xs">
-                inspired by the
+              <span className="block text-general-60 text-xs">
+                inspired by the{" "}
                 <Link
                   target="_blank"
                   href="https://en.wikipedia.org/wiki/The_Library_of_Babel"
