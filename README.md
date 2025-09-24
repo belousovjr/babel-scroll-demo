@@ -1,36 +1,38 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Babel Scroll Demo
 
-## Getting Started
+A demo project inspired by the concept of the [Library of Babel](https://en.wikipedia.org/wiki/The_Library_of_Babel).  
+Browse an infinite scroll of entries styled like tweets, but with references to ancient Babylon.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## ✨ Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- 📜 **Scroll of All Possible Entries**  
+  Each entry is a combination of 27 characters (Latin letters + space), 80 characters long.  
+  In total, the scroll contains `27⁸⁰ - 1` unique strings — **literally everything** that can be written.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- 🔍 **Search and Navigation**  
+  Search through the scroll or navigate manually.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- 🖼️ **Illustrations for Coherent Entries**  
+  Uses [pollinations.ai](https://pollinations.ai) to generate images for the most interesting entries.
 
-## Learn More
+- ❤️ **Likes and Google Authentication**  
+  Users can log in with Google and like their favorite entries.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## ⚙️ Tech Stack
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Next.js**
+- **NextAuth**
+- **TailwindCSS**
+- **Custom Scroll Virtualizer**
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Links
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [babel-wall-demo.vercel.app](https://babel-wall-demo.vercel.app/)
+- [uikit](https://uikit-peach.vercel.app)
+- [GitHub](https://github.com/belousovjr/babel-wall-demo)
