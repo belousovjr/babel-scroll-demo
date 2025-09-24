@@ -34,7 +34,7 @@ export default function TutorialTip({
                   href="https://en.wikipedia.org/wiki/The_Library_of_Babel"
                   className="inline-flex items-end gap-0.5 underline decoration-2 underline-offset-4 decoration-primary-100 transition hover:text-white"
                 >
-                  The Babylonian Library
+                  Library of Babel
                   <ArrowUpRightIcon size={12} />
                 </Link>
               </span>
