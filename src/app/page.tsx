@@ -2,7 +2,7 @@ import ScrollableList from "./components/ScrollableList";
 
 export default function Home() {
   return (
-    <main>
+    <main className="font-sans">
       <ScrollableList />
     </main>
   );
