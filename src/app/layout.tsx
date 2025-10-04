@@ -65,7 +65,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${interSans.variable} ${redhatMono.variable} antialiased`}
+        className={`${interSans.variable} ${redhatMono.variable} antialiased font-sans`}
       >
         <Providers session={session}>{children}</Providers>
       </body>
