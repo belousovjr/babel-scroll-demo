@@ -33,5 +33,5 @@ Browse an infinite scroll of entries styled like tweets, but with references to 
 
 ## Links
 
-- [uikit](https://uikit-peach.vercel.app)
+- [uikit](https://uikit.belousovjr.me/)
 - [GitHub](https://github.com/belousovjr/babel-wall-demo)
